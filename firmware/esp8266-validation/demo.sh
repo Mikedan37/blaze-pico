@@ -28,7 +28,11 @@ FAILED=0; LOG="$(mktemp -d)"
 if [ -z "${PIO:-}" ] || [ -z "${ESPTOOL_PY:-}" ]; then
   if [ ! -x "$HERE/.venv/bin/pio" ]; then
     echo "${D}First run: installing PlatformIO + esptool into $HERE/.venv ...${N}"
-    python3 -m venv "$HERE/.venv" && "$HERE/.venv/bin/pip" -q install platformio esptool >/dev/null || { echo "install failed"; exit 1; }
+    # Upgrade pip first: an old pip cannot find prebuilt wheels (e.g. cryptography) and tries to compile them.
+    python3 -m venv "$HERE/.venv" \
+      && "$HERE/.venv/bin/python" -m pip install -q --upgrade pip \
+      && "$HERE/.venv/bin/python" -m pip install -q platformio esptool \
+      || { rm -rf "$HERE/.venv"; echo "install failed (see errors above)"; exit 1; }
   fi
   PIO="${PIO:-$HERE/.venv/bin/pio}"; ESPTOOL_PY="${ESPTOOL_PY:-$HERE/.venv/bin/python -m esptool}"
 fi

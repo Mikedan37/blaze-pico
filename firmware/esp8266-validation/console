@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 # Interactive Blaze console (see README.md). Uses the local .venv (created by ./demo.sh).
 HERE="$(cd "$(dirname "$0")" && pwd)"
-[ -x "$HERE/.venv/bin/python" ] || { python3 -m venv "$HERE/.venv" && "$HERE/.venv/bin/pip" -q install platformio esptool >/dev/null; }
+if [ ! -x "$HERE/.venv/bin/pio" ]; then
+  python3 -m venv "$HERE/.venv" \
+    && "$HERE/.venv/bin/python" -m pip install -q --upgrade pip \
+    && "$HERE/.venv/bin/python" -m pip install -q platformio esptool \
+    || { rm -rf "$HERE/.venv"; echo "install failed (see errors above)"; exit 1; }
+fi
 exec "$HERE/.venv/bin/python" "$HERE/console.py" "$@"
