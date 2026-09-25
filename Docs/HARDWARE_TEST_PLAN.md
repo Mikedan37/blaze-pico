@@ -30,7 +30,8 @@ pico-monitor                      # in a second terminal, to watch the Pico's ou
 | 14 | Garbage does nothing | Send random bytes: `head -c 200 /dev/urandom > /dev/cu.usbmodem*` | No LED change, no `ACK`, only `ERROR: Rejected frame` lines if a `BLAZ` happened to appear |
 | 15 | Wrong version does nothing | Send a frame whose PicoCommand version byte is 2 (Python snippet below) | `ERROR: Rejected frame: UNSUPPORTED_VERSION`, no LED change |
 | 16 | Text commands still work | In `pico-monitor`, type `GREEN ON`, `SERVO 90`, `STATUS` | Same responses as before this change |
-| 17 | Servo timing (separate issue) | `SERVO 0`, `SERVO 180` | Servo reaches both ends without straining. Known risk: PWM math assumes 125 MHz, RP2350 defaults to 150 MHz |
+| 17 | Old firmware is refused | Flash firmware from `main` (protocol 1), run `.build/release/PicoLEDControl RED ON` | `Incompatible Pico firmware protocol (device reports protocol 1). Host requires protocol 2. Reflash the device firmware.` and the LED does not change |
+| 18 | Servo timing (separate issue) | `SERVO 0`, `SERVO 180` | Servo reaches both ends without straining. Known risk: PWM math assumes 125 MHz, RP2350 defaults to 150 MHz |
 
 ### Sending a hand-made frame (checks 14 and 15)
 

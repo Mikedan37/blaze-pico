@@ -296,8 +296,41 @@ public class PicoLEDController {
             try serialPort.open(baudRate: 115200)
         }
         
-        // Send packet (non-blocking write)
+        // Send packet (non-blocking write), only to firmware confirmed to speak protocol 2
+        try ensureProtocolCompatible()
         try serialPort.write(fullPacket)
+    }
+    
+    /// Firmware protocol for the currently open port. Checked once over the text
+    /// path before the first binary frame; protocol 1 firmware misreads protocol 2
+    /// frames and can actuate hardware, so anything else refuses to send.
+    private var protocolCompatibility: ProtocolCompatibility = .unknown
+    
+    private func ensureProtocolCompatible() throws {
+        if protocolCompatibility.isCompatible { return }
+        if !serialPort.isOpen {
+            try serialPort.open(baudRate: 115200)
+        }
+        try serialPort.write(Data("DEVICE_INFO\n".utf8))
+        
+        var buffer = Data()
+        let start = Date()
+        while Date().timeIntervalSince(start) < 2.0 {
+            buffer.append(try serialPort.read(maxBytes: 512, timeoutMs: 100))
+            if String(decoding: buffer, as: UTF8.self).contains("DEVICE_INFO_END") { break }
+        }
+        let text = String(decoding: buffer, as: UTF8.self)
+        guard let begin = text.range(of: "DEVICE_INFO_BEGIN"),
+              let end = text.range(of: "DEVICE_INFO_END", range: begin.upperBound..<text.endIndex) else {
+            protocolCompatibility = .unknown
+            throw PicoProtocolError.protocolUnknown
+        }
+        let lines = text[begin.upperBound..<end.lowerBound].split(separator: "\n").map(String.init)
+        let reported = DeviceCapabilities.parseDeviceInfo(lines: lines).protocolVersion
+        protocolCompatibility = ProtocolCompatibility.evaluate(reportedVersion: reported)
+        guard protocolCompatibility.isCompatible else {
+            throw PicoProtocolError.incompatibleFirmware(reported: reported)
+        }
     }
     
     /// Handle ACK asynchronously (background task)
@@ -689,6 +722,7 @@ public class PicoLEDController {
     ///   - traceID: Trace ID for correlation
     /// - Returns: True if ACK received, false if timeout
     private func sendPacket(_ packet: BlazePacket, traceID: UInt64) throws -> Bool {
+        try ensureProtocolCompatible()
         return try sendAndReadResponse(PicoWire.serialFrame(packet))
     }
 
@@ -867,5 +901,6 @@ public class PicoLEDController {
     /// Close the serial port connection
     public func close() {
         serialPort.close()
+        protocolCompatibility = .unknown  // a reopened port may be different firmware
     }
 }

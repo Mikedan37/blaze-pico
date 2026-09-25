@@ -47,6 +47,50 @@ public struct PicoCommandV1: BlazeBinaryCodable, Equatable {
     }
 }
 
+/// Firmware wire-protocol compatibility, established per device session.
+///
+/// Firmware reports `PROTOCOL=<n>` in its text `DEVICE_INFO` reply. This host
+/// speaks exactly protocol 2 (BlazeBinary PicoCommandV1 frames with CRC-32).
+/// Protocol 1 firmware reads a protocol 2 frame as a hand-packed batch and can
+/// execute trace-ID bytes as commands, so no binary byte is written until the
+/// current session has reported protocol 2.
+public enum ProtocolCompatibility: Equatable {
+    /// Not yet checked for this session. Binary commands are blocked.
+    case unknown
+    case compatible(Int)
+    /// Device reported another version. 0 means missing or malformed.
+    case incompatible(reported: Int)
+
+    public static let requiredVersion = 2
+
+    public var isCompatible: Bool {
+        if case .compatible = self { return true }
+        return false
+    }
+
+    /// Decide from the firmware's reported protocol (0 = missing or malformed).
+    public static func evaluate(reportedVersion: Int) -> ProtocolCompatibility {
+        reportedVersion == requiredVersion ? .compatible(reportedVersion) : .incompatible(reported: reportedVersion)
+    }
+}
+
+public enum PicoProtocolError: Error, LocalizedError, Equatable {
+    case incompatibleFirmware(reported: Int)
+    case protocolUnknown
+
+    public var errorDescription: String? {
+        switch self {
+        case .incompatibleFirmware(let reported):
+            let found = reported == 0 ? "no valid protocol version" : "protocol \(reported)"
+            return "Incompatible Pico firmware protocol (device reports \(found)). "
+                + "Host requires protocol \(ProtocolCompatibility.requiredVersion). Reflash the device firmware."
+        case .protocolUnknown:
+            return "Pico firmware protocol not confirmed for this session (no DEVICE_INFO reply). "
+                + "Host requires protocol \(ProtocolCompatibility.requiredVersion). Commands are blocked."
+        }
+    }
+}
+
 public enum PicoWireError: Error, Equatable {
     case unsupportedVersion(UInt8)
     case badMagic

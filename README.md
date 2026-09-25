@@ -55,6 +55,10 @@ BlazeBinary's own framing (`BlazeBinaryFrame`) is not used here: BlazeTransport 
 
 Speed is not the reason. Round trip time is dominated by USB timing and waiting for the acknowledgement, not by message size.
 
+**Firmware compatibility check**
+
+The firmware reports its protocol version (`PROTOCOL=2`) in its text `DEVICE_INFO` reply. The host reads it over the text path before writing any binary byte, and again whenever the device starts a new session (reboot or reflash). Anything other than protocol 2, including no answer, blocks all binary commands with: `Incompatible Pico firmware protocol ... Host requires protocol 2. Reflash the device firmware.` Older firmware would misread the new frames, so it is never sent any.
+
 **How the firmware handles bad input**
 
 Nothing touches the hardware until the whole frame has been checked: CRC, header, DATA frame, BlazeBinary payload, message version, command ID, and value range. Anything that fails is rejected with an `ERROR:` line and nothing runs. After a bad frame the parser skips ahead to the next `BLAZ` marker and never treats binary bytes as a text command. If a truncated frame swallowed the start of the next one, the parser rescans the swallowed bytes and still finds it. The parser is plain C with no Pico SDK dependency, so all of this is tested on the Mac (`make -C firmware/tests/protocol test`), including a fuzz run.

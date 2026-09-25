@@ -101,15 +101,28 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     private var _lastKnownBootTimestamp: UInt64?
     private var _packetNumber: UInt32 = 1
     private var _reconnectAttempts: Int = 0
+    private var _compatibility: ProtocolCompatibility = .unknown
     private let sessionStateLock = NSLock()
     
     public private(set) var isConnected: Bool {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _isConnected }
         set { sessionStateLock.lock(); _isConnected = newValue; sessionStateLock.unlock() }
     }
-    public private(set) var isReady: Bool {
+    /// Ready for commands: the device announced readiness (BLAZE_READY, HEARTBEAT READY:1,
+    /// or STATUS ready=1) AND this session's firmware protocol was confirmed compatible.
+    public var isReady: Bool {
+        sessionStateLock.lock(); defer { sessionStateLock.unlock() }
+        return _isReady && _compatibility.isCompatible
+    }
+    /// Device-side readiness signal only. Not sufficient for commands on its own.
+    private var readySignalReceived: Bool {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _isReady }
         set { sessionStateLock.lock(); _isReady = newValue; sessionStateLock.unlock() }
+    }
+    /// Firmware wire-protocol compatibility for the current session.
+    public private(set) var compatibility: ProtocolCompatibility {
+        get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _compatibility }
+        set { sessionStateLock.lock(); _compatibility = newValue; sessionStateLock.unlock() }
     }
     private var bootTimestamp: UInt64? {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _bootTimestamp }
@@ -234,6 +247,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         _currentSessionID = nil
         _lastAppliedSequence = 0
         _reconnectAttempts = 0
+        _compatibility = .unknown   // never inherited from a previous session
         sessionStateLock.unlock()
         
         // Open serial port
@@ -249,11 +263,34 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         
         isConnected = true
         
+        // PROTOCOL GATE: confirm the firmware speaks protocol 2 over the TEXT path
+        // before writing a single binary byte (including the STATUS probe below).
+        // Protocol 1 firmware misreads protocol 2 frames and can actuate hardware.
+        let compat = checkProtocolOverText()
+        compatibility = compat
+        guard compat.isCompatible else {
+            let error: PicoProtocolError
+            if case .incompatible(let reported) = compat {
+                error = .incompatibleFirmware(reported: reported)
+            } else {
+                error = .protocolUnknown
+            }
+            print("[PicoSession] 🔴 \(error.localizedDescription)")
+            fflush(stdout)
+            events.send(.error(ErrorEvent(message: error.localizedDescription, code: -20, timestamp: Date())))
+            serialPort.close()
+            sessionStateLock.lock()
+            _isConnected = false
+            _isReady = false
+            sessionStateLock.unlock()
+            throw error
+        }
+        
         if readyReceived {
             // BLAZE_READY received (push lifecycle event).
             // This GUARANTEES: GPIO init, timers, heartbeat, USB CDC stable.
             // STATUS probe is supplementary — BLAZE_READY is authoritative.
-            isReady = true
+            readySignalReceived = true
             let transportVerified = try await verifyTransport()
             if transportVerified {
                 print("[PicoSession] ✅ BLAZE_READY + STATUS probe confirmed — commands enabled")
@@ -268,28 +305,29 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             fflush(stdout)
             let transportVerified = try await verifyTransport()
             if transportVerified {
-                isReady = true
+                readySignalReceived = true
                 print("[PicoSession] ✅ STATUS probe confirmed ready (late-join recovery)")
                 fflush(stdout)
             } else {
-                isReady = false
+                readySignalReceived = false
                 print("[PicoSession] ⚠️ STATUS probe failed — commands blocked until event reader detects readiness")
                 fflush(stdout)
             }
         }
         
-        // Query device capabilities before starting event reader
+        // Pin map (DEVICE_INFO was already read by the protocol gate)
         // (uses raw serial reads since event reader isn't running yet)
         if isReady {
             do {
-                let caps = try queryDeviceCapabilities()
+                let pins = try queryPinMapRaw()
                 gpioStateLock.lock()
-                _deviceCapabilities = caps
+                _deviceCapabilities?.pins = pins
+                let summary = _deviceCapabilities?.summary ?? ""
                 gpioStateLock.unlock()
-                print("[PicoSession] Device: \(caps.summary)")
+                print("[PicoSession] Device: \(summary)")
                 fflush(stdout)
             } catch {
-                print("[PicoSession] Capability query failed (non-fatal): \(error)")
+                print("[PicoSession] Pin map query failed (non-fatal): \(error)")
                 fflush(stdout)
             }
         }
@@ -328,6 +366,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         sessionStateLock.lock()
         _isConnected = false
         _isReady = false
+        _compatibility = .unknown
         sessionStateLock.unlock()
         
         // Resume any pending text/multi-line continuations to prevent callers from hanging
@@ -387,6 +426,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         let wasConnected = _isConnected
         _isConnected = false
         _isReady = false
+        _compatibility = .unknown
         sessionStateLock.unlock()
         
         if wasConnected {
@@ -486,7 +526,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             do {
                 let probeTraceID = generateTraceID()
                 let packet = buildCommandPacket(PicoCommandV1(traceID: probeTraceID, command: .status, value: 0))
-                try serialPort.write(PicoWire.serialFrame(packet))
+                try writeBinaryFrames(PicoWire.serialFrame(packet))
                 
                 let response = try serialPort.read(maxBytes: 512, timeoutMs: 1000)
                 let text = Self.resilientString(from: response)
@@ -535,22 +575,55 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         return false
     }
     
-    /// Query DEVICE_INFO + PINMAP during the connect handshake (before event reader starts).
+    /// Protocol gate for connect(): read DEVICE_INFO over the TEXT path (safe on any
+    /// firmware version) and decide compatibility. Stores the capabilities it read.
+    /// No reply at all returns `.unknown`; a reply without a valid PROTOCOL line
+    /// returns `.incompatible(reported: 0)`.
+    private func checkProtocolOverText() -> ProtocolCompatibility {
+        do {
+            try serialPort.write(Data("DEVICE_INFO\n".utf8))
+            let infoLines = try readMultiLineResponse(begin: "DEVICE_INFO_BEGIN", end: "DEVICE_INFO_END", timeoutMs: 2000)
+            let caps = DeviceCapabilities.parseDeviceInfo(lines: infoLines)
+            gpioStateLock.lock()
+            _deviceCapabilities = caps
+            gpioStateLock.unlock()
+            return ProtocolCompatibility.evaluate(reportedVersion: caps.protocolVersion)
+        } catch {
+            print("[PicoSession] ⚠️ DEVICE_INFO query failed: \(error)")
+            fflush(stdout)
+            return .unknown
+        }
+    }
+    
+    /// Query PINMAP during the connect handshake (before event reader starts).
     /// Uses raw serial reads. Tolerates interleaved heartbeat lines.
-    private func queryDeviceCapabilities() throws -> DeviceCapabilities {
-        // --- DEVICE_INFO ---
-        let infoCmd = Data("DEVICE_INFO\n".utf8)
-        try serialPort.write(infoCmd)
-        let infoLines = try readMultiLineResponse(begin: "DEVICE_INFO_BEGIN", end: "DEVICE_INFO_END", timeoutMs: 2000)
-        var caps = DeviceCapabilities.parseDeviceInfo(lines: infoLines)
-        
-        // --- PINMAP ---
-        let pinmapCmd = Data("PINMAP\n".utf8)
-        try serialPort.write(pinmapCmd)
+    private func queryPinMapRaw() throws -> [PinCapability] {
+        try serialPort.write(Data("PINMAP\n".utf8))
         let pinLines = try readMultiLineResponse(begin: "PINMAP_BEGIN", end: "PINMAP_END", timeoutMs: 2000)
-        caps.pins = DeviceCapabilities.parsePinMap(lines: pinLines)
-        
-        return caps
+        return DeviceCapabilities.parsePinMap(lines: pinLines)
+    }
+    
+    /// Re-check the protocol after the device started a new session (reboot or reflash)
+    /// while the event reader is running. Commands stay blocked until this confirms.
+    private func revalidateProtocol() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            let lines = (try? await self.sendMultiLineCommand("DEVICE_INFO", endMarker: "DEVICE_INFO_END", timeoutMs: 2000)) ?? []
+            let compat: ProtocolCompatibility = lines.isEmpty
+                ? .unknown
+                : ProtocolCompatibility.evaluate(reportedVersion: DeviceCapabilities.parseDeviceInfo(lines: lines).protocolVersion)
+            self.compatibility = compat
+            if !compat.isCompatible {
+                let error: PicoProtocolError
+                if case .incompatible(let reported) = compat { error = .incompatibleFirmware(reported: reported) } else { error = .protocolUnknown }
+                print("[PicoSession] 🔴 New session rejected: \(error.localizedDescription)")
+                fflush(stdout)
+                self.events.send(.error(ErrorEvent(message: error.localizedDescription, code: -20, timestamp: Date())))
+            } else {
+                print("[PicoSession] ✅ New session protocol confirmed: \(compat)")
+                fflush(stdout)
+            }
+        }
     }
     
     /// Read a multi-line BEGIN/END delimited response from serial.
@@ -613,6 +686,11 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                 print("[PicoSession] 🔄 Session changed: \(String(format: "%08X", oldSessionID)) -> \(String(format: "%08X", newSessionID)) - resetting sequence tracking")
                 fflush(stdout)
                 lastAppliedSequence = 0  // Reset sequence to allow new session's events
+                
+                // A new session may be different firmware (reflash): block binary
+                // commands until it reports a compatible protocol again.
+                compatibility = .unknown
+                revalidateProtocol()
                 
                 // CRITICAL: Fail all pending commands (command timeout + reconnect race protection)
                 // Device rebooted mid-command - original command never completed
@@ -747,7 +825,8 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                             print("[PicoSession] 🔴 Event reader: \(emptyReadCount) consecutive empty reads — declaring connection dead")
                             fflush(stdout)
                             self.isConnected = false
-                            self.isReady = false
+                            self.readySignalReceived = false
+                            self.compatibility = .unknown
                             self.events.send(.error(ErrorEvent(
                                 message: "Connection lost: no data received for \(emptyReadCount) read cycles (~\(emptyReadCount * 150 / 1000)s)",
                                 code: -5,
@@ -764,7 +843,8 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                     print("[PicoSession] 🔴 Event reader error (triggering disconnect): \(error)")
                     fflush(stdout)
                     self.isConnected = false
-                    self.isReady = false
+                    self.readySignalReceived = false
+                    self.compatibility = .unknown
                     self.events.send(.error(ErrorEvent(
                         message: "Serial read failed: \(error.localizedDescription)",
                         code: -5,
@@ -842,28 +922,28 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         
         // --- Push-based lifecycle readiness (BLAZE_READY) ---
         // Catches BLAZE_READY if it arrives after connect() finished (e.g. reconnect).
-        if trimmed.contains("BLAZE_READY") && !self.isReady {
+        if trimmed.contains("BLAZE_READY") && !self.readySignalReceived {
             print("[PicoSession] ✅ BLAZE_READY detected by event reader — marking ready")
             fflush(stdout)
-            self.isReady = true
+            self.readySignalReceived = true
             parseBootTimestamps(trimmed)
             let bootEvt = BootEvent(stage: "BLAZE_READY", bootTimestamp: bootTimestamp, readyTimestamp: readyTimestamp)
             events.send(.boot(bootEvt))
         }
         
         // HEARTBEAT with READY:1 is the next-best lifecycle signal (late-join recovery).
-        if trimmed.contains("HEARTBEAT:") && trimmed.contains("READY:1") && !self.isReady {
+        if trimmed.contains("HEARTBEAT:") && trimmed.contains("READY:1") && !self.readySignalReceived {
             print("[PicoSession] ✅ HEARTBEAT READY:1 detected — marking ready (late-join)")
             fflush(stdout)
-            self.isReady = true
+            self.readySignalReceived = true
         }
 
         // --- Pull-based health probe (STATUS) ---
         // If the event reader sees a STATUS response with ready=1, mark ready.
-        if trimmed.hasPrefix("STATUS:") && trimmed.contains("ready=1") && !self.isReady {
+        if trimmed.hasPrefix("STATUS:") && trimmed.contains("ready=1") && !self.readySignalReceived {
             print("[PicoSession] ✅ STATUS ready=1 detected by event reader — marking ready")
             fflush(stdout)
-            self.isReady = true
+            self.readySignalReceived = true
         }
         
         // Session identity (CRITICAL: Detects device reboots for sequence reset)
@@ -2025,6 +2105,18 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     /// RULE 5: Single writer lock ensures no concurrent USB writes
     /// RULE 1: Emit error event on hard failure so DeviceManager can handleHardFailure()
     /// CRITICAL GAP #2: Check invalidation before write
+    /// The only way binary frames reach the serial port. Refuses unless this
+    /// session's firmware protocol is confirmed compatible, so nothing (including
+    /// commands queued earlier) is written to incompatible or unverified firmware.
+    func writeBinaryFrames(_ data: Data) throws {
+        let compat = compatibility
+        guard compat.isCompatible else {
+            if case .incompatible(let reported) = compat { throw PicoProtocolError.incompatibleFirmware(reported: reported) }
+            throw PicoProtocolError.protocolUnknown
+        }
+        try serialPort.write(data)
+    }
+    
     private func sendPacketsNonBlocking(_ packets: [BlazePacket]) throws {
         // Check invalidation BEFORE acquiring writeLock (lock order: invalidationLock(6) < writeLock(7))
         invalidationLock.lock()
@@ -2044,7 +2136,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         do {
             print("[PicoSession] 📤 Writing packet to serial port: \(fullPacket.count) bytes")
             fflush(stdout)
-            try serialPort.write(fullPacket)
+            try writeBinaryFrames(fullPacket)
             print("[PicoSession] ✅ Packet written successfully")
             fflush(stdout)
             writeResult = .success(())
