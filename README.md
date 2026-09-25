@@ -122,9 +122,26 @@ Note: `PicoLEDControl --full-pipeline` simulates the voice and LLM stages with f
 
 ---
 
+## Status
+
+| What | State |
+|---|---|
+| Protocol stack (C), BlazeBinary Swift/C interop | Tested on the Mac: golden bytes, stream robustness, fuzz |
+| **Real hardware, ESP8266 validation board** | **Verified**: handshake, commands with trace-matched ACKs, rejection of corrupt / wrong-version / invalid frames, reconnect, physical reset, refusal of `PROTOCOL=1` firmware. See [firmware/esp8266-validation](firmware/esp8266-validation/README.md) |
+| Real hardware, Pico 2 W with this protocol | **Not yet run.** Checklist in [Docs/HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md) |
+| Host build for other people | **Needs BlazeBinary 2.0.0.** Until it is published, `PicoLEDControlSwift/Package.swift` points at a local BlazeBinary checkout (`../../../Developer/blaze-interop/BlazeBinary`, branch `feature/blazebinary-c-interop`) |
+
+---
+
 ## Quick Start
 
 **Hardware:** Raspberry Pi Pico 2 W (RP2350). LEDs, RGB LED, and servo pin assignments are in `main.c`.
+
+**No Pico?** An ESP8266 board works as a test target. One command shows the whole protocol working on real hardware:
+
+```bash
+cd firmware/esp8266-validation && ./demo.sh     # or ./console to drive the board live
+```
 
 ### Build and flash the firmware
 
@@ -157,7 +174,12 @@ cd PicoLEDControlSwift && swift test
 make -C firmware/tests/protocol test
 ```
 
-Everything runs without hardware except the chaos tests (command flood, hot unplug, rapid reconnects), which skip unless a Pico is connected. The on-device checklist is in [Docs/HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md).
+Everything runs without hardware. Tests that need a board skip themselves:
+
+- chaos tests (command flood, hot unplug, rapid reconnects) run when a Pico is connected;
+- `ESP8266HardwareTests` run when `BLAZE_HW_PORT` points at the ESP8266 board (see its README).
+
+The Pico on-device checklist is in [Docs/HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md).
 
 ---
 
@@ -174,12 +196,13 @@ blaze-pico/
 │   ├── protocol/          # Serial parser + PicoCommandV1 (portable C, runs on the Pico and in tests)
 │   ├── third_party/       # Vendored BlazeBinary C and BlazeTransport C decoder
 │   ├── tests/protocol/    # Host tests and golden frames for the protocol stack
+│   ├── esp8266-validation/ # ESP8266 test board: demo, live console, glue firmware
 │   └── bin/, tests/       # Prebuilt .uf2 files and test firmware
 ├── Scripts/               # Test and flash scripts
 └── Docs/                  # Design notes and debugging write-ups
 ```
 
-Good places to start in `Docs/`: [SYSTEM_ARCHITECTURE.md](Docs/SYSTEM_ARCHITECTURE.md), [PICO_COMMAND_INTERFACE.md](Docs/PICO_COMMAND_INTERFACE.md), [USB_CDC_BOOT_PATTERN.md](Docs/USB_CDC_BOOT_PATTERN.md).
+For the current wire format, read "The Protocol" above and the headers in `firmware/protocol/`. Most files in `Docs/` are design notes written before the BlazeBinary command format; `SYSTEM_ARCHITECTURE.md` and `PICO_COMMAND_INTERFACE.md` still describe the older hand-packed payload. [USB_CDC_BOOT_PATTERN.md](Docs/USB_CDC_BOOT_PATTERN.md) and [HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md) are current.
 
 ---
 

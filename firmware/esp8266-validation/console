@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Interactive Blaze console (see README.md). Uses the local .venv (created by ./demo.sh).
+HERE="$(cd "$(dirname "$0")" && pwd)"
+[ -x "$HERE/.venv/bin/python" ] || { python3 -m venv "$HERE/.venv" && "$HERE/.venv/bin/pip" -q install platformio esptool >/dev/null; }
+exec "$HERE/.venv/bin/python" "$HERE/console.py" "$@"
