@@ -1,0 +1,72 @@
+# Build artifacts
+build/
+.build/
+*.o
+*.a
+*.so
+*.dylib
+*.dSYM/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+*.xcodeproj/
+*.xcworkspace/
+
+# Pico build artifacts
+*.uf2
+*.elf
+*.bin
+*.hex
+*.map
+*.dis
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+
+# Telemetry data
+telemetry/
+*.json
+!package.json
+
+# Test artifacts
+*.test
+test_results/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+venv/
+env/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Agent transcripts (keep structure but ignore content)
+agent-transcripts/
+
+# Large binary files
+*.zip
+*.tar.gz
+*.dmg

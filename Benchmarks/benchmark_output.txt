@@ -1,0 +1,291 @@
+Building for production...
+[0/4] Write sources
+[1/4] Write swift-version-39B54973F684ADAB.txt
+[3/5] Compiling PerformanceBenchmark main.swift
+[3/5] Write Objects.LinkFileList
+[4/5] Linking PerformanceBenchmark
+Build of product 'PerformanceBenchmark' complete! (1.74s)
+================================================================================
+PICO LED CONTROL PLANE - PERFORMANCE BENCHMARK SUITE
+================================================================================
+
+✅ Found Pico device: /dev/tty.usbmodem2101
+
+🔌 Connecting to device...
+[PicoSession] Waiting for BLAZE_READY signal (timeout: 5000ms)...
+[PicoSession] ⚠️ Connected but BLAZE_READY not received - device may not be ready
+✅ Connected
+
+📊 END-TO-END BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Single Command Latency (100 iterations)...
+[PicoSession] ⚠️ Sending command but device not marked ready (BLAZE_READY not received)
+[PicoSession] 📥 Queued command: commandID=2, value=0, traceID=AC28850D, queueSize=1
+[PicoSession] 📤 Writing packet to serial port: 31 bytes
+[PicoSession] 🔴 Failed to write packet: writeFailed(bytesWritten: -1, expected: 31, errno: 35)
+[PicoSession] ⚠️ ACK timeout - command may not have executed
+    ⚠️ Command 1 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 2 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 3 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 4 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 5 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 6 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 7 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 8 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 9 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 10 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 11 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 12 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 13 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 14 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 15 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 16 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 17 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 18 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 19 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 20 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 21 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 22 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 23 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 24 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 25 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 26 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 27 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 28 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 29 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 30 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 31 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 32 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 33 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 34 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 35 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 36 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 37 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 38 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 39 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 40 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 41 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 42 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 43 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 44 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 45 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 46 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 47 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 48 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 49 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 50 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 51 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 52 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 53 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 54 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 55 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 56 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 57 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 58 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 59 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 60 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 61 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 62 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 63 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 64 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 65 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 66 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 67 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 68 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 69 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 70 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 71 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 72 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 73 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 74 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 75 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 76 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 77 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 78 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 79 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 80 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 81 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 82 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 83 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 84 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 85 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 86 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 87 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 88 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 89 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 90 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 91 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 92 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 93 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 94 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 95 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 96 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 97 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 98 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Command 99 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    📊 Total Latency:
+       Min:    1024.14 ms
+       Avg:    1024.14 ms
+       P50:    1024.14 ms
+       P95:    1024.14 ms
+       P99:    1024.14 ms
+       Max:    1024.14 ms
+    ⚠️ ACK Latency (estimated): No data
+    ⚠️ State Latency: No data
+  🔹 Batch Command Latency (50 iterations)...
+    ⚠️ Batch 0 failed: Error Domain=PicoSession Code=-1 "Device not connected" UserInfo={NSLocalizedDescription=Device not connected}
+    ⚠️ Batch 1 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 2 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 3 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 4 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 5 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 6 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 7 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 8 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 9 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 10 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 11 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 12 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 13 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 14 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 15 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 16 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 17 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 18 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 19 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 20 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 21 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 22 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 23 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 24 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 25 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 26 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 27 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 28 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 29 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 30 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 31 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 32 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 33 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 34 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 35 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 36 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 37 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 38 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 39 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 40 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 41 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 42 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 43 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 44 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 45 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 46 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 47 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 48 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 49 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch Latency: No data
+  🔹 Throughput Test (10s)...
+    ✅ Commands: 0
+    ❌ Errors: 15577046
+    ⚡ Throughput: 0.00 commands/second
+
+📊 COMPONENT BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Serial I/O Performance...
+    ⚡ Parse operations: 22733355 ops/sec
+  🔹 State Parsing Performance...
+    ⚡ Parse operations: 361024 ops/sec
+  🔹 Deduplication Overhead...
+    ⚡ Deduplication checks: 25213730 ops/sec
+
+📊 MEMORY BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Baseline Memory: 7.8 MB
+  🔹 After 100 Commands: 10.1 MB
+  🔹 Memory Delta: 2.3 MB
+  🔹 Bounded Set Memory...
+    📦 At capacity (1000): 10.1 MB
+    📦 After eviction: 10.1 MB
+    ✅ Set size: 1000 (bounded)
+
+📊 PIPELINE BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Command Pipeline (Command → ACK → STATE_CHANGE)...
+    ⚠️ Pipeline 0 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 1 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 2 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 3 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 4 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 5 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 6 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 7 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 8 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 9 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 10 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 11 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 12 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 13 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 14 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 15 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 16 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 17 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 18 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 19 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 20 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 21 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 22 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 23 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 24 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 25 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 26 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 27 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 28 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 29 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 30 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 31 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 32 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 33 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 34 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 35 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 36 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 37 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 38 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 39 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 40 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 41 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 42 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 43 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 44 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 45 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 46 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 47 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 48 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 49 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline Total: No data
+    ⚠️ ACK Phase: No data
+    ⚠️ STATE_CHANGE Phase: No data
+  🔹 Concurrent Commands (10 concurrent)...
+    ✅ Success rate: 10/10
+    ⚡ Total time: 0.08ms
+    ⚡ Avg per command: 0.01ms
+
+📊 STRESS TESTS
+--------------------------------------------------------------------------------
+  🔹 Rapid Command Burst (100 commands)...
+    ✅ Success: 0
+    ❌ Errors: 100
+    ⚡ Total time: 0.18ms
+    ⚡ Rate: 568333.88 commands/sec
+  🔹 Long-Running Stability (30s)...
+    ✅ Commands: 0
+    ❌ Errors: 563
+    ⚡ Throughput: 0.00 commands/sec
+    📦 Avg Memory: Zero KB
+    📦 Max Memory: Zero KB
+    📦 Min Memory: Zero KB
+    📦 Memory Delta: Zero KB
+
+
+================================================================================
+✅ ALL BENCHMARKS COMPLETE
+================================================================================

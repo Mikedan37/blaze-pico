@@ -1,0 +1,20 @@
+HOW TO FLASH PICO W2:
+
+STEP 1:
+rm -rf build                           
+mkdir build
+cd build
+cmake ..
+make -j4
+
+Hold BOOTSEL ON PICO and plug in
+
+STEP 2:
+cp blaze_pico.uf2 /Volumes/RP2350/ sync
+
+Step 3:
+Unplug and use 
+
+screen /dev/cu.usbmodem* 115200    
+
+To Exit (ctrl+a, k, y)

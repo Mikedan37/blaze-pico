@@ -1,0 +1,78 @@
+# Build artifacts
+build/
+build-*/
+*.o
+*.a
+*.so
+*.dylib
+
+# Swift build artifacts
+.swiftpm/
+.build/
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+
+# Pico SDK
+pico-sdk/
+pico-examples/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+*.out
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Firmware binaries
+# Keep firmware/bin/*.uf2 for reference, but ignore build artifacts
+build*/*.uf2
+build*/*.bin
+build*/*.hex
+*.uf2.bak
+
+# Backup files
+*.backup
+*.bak
+*.txt.backup
+
+# Test artifacts
+firmware/tests/*.o
+firmware/tests/*.uf2
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Test artifacts
+test-results/
+coverage/
+
+# Documentation builds
+site/
+_site/
+
+# Local leftovers
+main.c.backup-full
+main.c.restore
+.cursor/

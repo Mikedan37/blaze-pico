@@ -1,0 +1,4 @@
+.build/
+.swiftpm/
+*.xcodeproj
+benchmark_results_*.txt

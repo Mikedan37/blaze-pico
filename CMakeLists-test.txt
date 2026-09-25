@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+project(test_onboard_led C CXX ASM)
+
+pico_sdk_init()
+
+add_executable(test_onboard_led
+    test-onboard-led.c
+)
+
+target_link_libraries(test_onboard_led pico_stdlib)
+
+pico_enable_stdio_usb(test_onboard_led 0)
+pico_enable_stdio_uart(test_onboard_led 0)
+
+pico_add_extra_outputs(test_onboard_led)

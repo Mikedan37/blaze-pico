@@ -1,0 +1,225 @@
+#!/bin/bash
+#
+# pico-hot - Hot flash mode (auto-detect USB disconnect/reconnect)
+#
+# Builds firmware, waits for USB disconnect, detects reconnect,
+# automatically flashes if UF2 mount appears, reopens serial.
+# No BOOTSEL prompt spam - just unplug → hold BOOTSEL → plug → done
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BUILD_DIR="$PROJECT_ROOT/build"
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}PICO HOT FLASH${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Step 1: Build firmware
+echo -e "${BLUE}[1/4] Building firmware...${NC}"
+echo ""
+if ! "$SCRIPT_DIR/pico-build"; then
+    echo -e "${RED}✗ Build failed, aborting${NC}"
+    exit 1
+fi
+echo ""
+
+# Find UF2 file
+UF2_FILE=""
+if [ -d "$BUILD_DIR" ]; then
+    UF2_FILE=$(find "$BUILD_DIR" -name "*.uf2" -type f -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
+fi
+
+if [ -z "$UF2_FILE" ] || [ ! -f "$UF2_FILE" ]; then
+    echo -e "${RED}✗ NO UF2 FOUND${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Firmware built: $UF2_FILE${NC}"
+echo ""
+
+# Step 2: Detect current Pico connection
+echo -e "${BLUE}[2/4] Detecting Pico connection...${NC}"
+echo ""
+
+# Find Pico serial devices
+SERIAL_DEVICES=($(ls /dev/cu.usbmodem* 2>/dev/null | sort))
+MOUNT_NAMES=("RP2350" "RPI-RP2")
+MOUNT_BASE="/Volumes"
+
+check_mount() {
+    for mount_name in "${MOUNT_NAMES[@]}"; do
+        MOUNT_CHECK="$MOUNT_BASE/$mount_name"
+        if [ -d "$MOUNT_CHECK" ]; then
+            if mountpoint -q "$MOUNT_CHECK" 2>/dev/null || [ -f "$MOUNT_CHECK/INDEX.HTM" ] || [ -f "$MOUNT_CHECK/INFO_UF2.TXT" ]; then
+                echo "$MOUNT_CHECK"
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+# Check if Pico is currently connected (serial or mount)
+HAS_SERIAL=false
+HAS_MOUNT=false
+
+if [ ${#SERIAL_DEVICES[@]} -gt 0 ]; then
+    HAS_SERIAL=true
+    echo -e "${YELLOW}✓ Serial device detected: ${SERIAL_DEVICES[-1]}${NC}"
+fi
+
+if MOUNT_PATH=$(check_mount); then
+    HAS_MOUNT=true
+    echo -e "${YELLOW}✓ Mount detected: $MOUNT_PATH${NC}"
+fi
+
+if [ "$HAS_SERIAL" = false ] && [ "$HAS_MOUNT" = false ]; then
+    echo -e "${YELLOW}No Pico detected. Waiting for connection...${NC}"
+fi
+
+echo ""
+
+# Step 3: Wait for USB disconnect (if connected)
+if [ "$HAS_SERIAL" = true ] || [ "$HAS_MOUNT" = true ]; then
+    echo -e "${BLUE}[3/4] Waiting for USB disconnect...${NC}"
+    echo ""
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}⚠ UNPLUG PICO NOW${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "Waiting for disconnect..."
+    
+    # Poll until device disappears
+    while true; do
+        CURRENT_SERIAL=($(ls /dev/cu.usbmodem* 2>/dev/null | sort))
+        CURRENT_MOUNT=$(check_mount 2>/dev/null || echo "")
+        
+        if [ ${#CURRENT_SERIAL[@]} -eq 0 ] && [ -z "$CURRENT_MOUNT" ]; then
+            echo -e "${GREEN}✓ Disconnect detected${NC}"
+            echo ""
+            break
+        fi
+        
+        sleep 0.5
+    done
+else
+    echo -e "${BLUE}[3/4] No device connected, skipping disconnect wait...${NC}"
+    echo ""
+fi
+
+# Step 4: Wait for reconnect in BOOTSEL mode
+echo -e "${BLUE}[4/4] Waiting for reconnect in BOOTSEL mode...${NC}"
+echo ""
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}⚠ HOLD BOOTSEL + PLUG IN USB${NC}"
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Wait for mount (BOOTSEL mode)
+POLL_INTERVAL=0.5
+MAX_WAIT=30
+START_TIME=$(date +%s)
+MOUNT_PATH=""
+
+while true; do
+    CURRENT_TIME=$(date +%s)
+    ELAPSED=$((CURRENT_TIME - START_TIME))
+    
+    if [ $ELAPSED -ge $MAX_WAIT ]; then
+        echo -e "${RED}✗ TIMEOUT${NC}"
+        echo "  No BOOTSEL mount detected after ${MAX_WAIT} seconds"
+        exit 1
+    fi
+    
+    if MOUNT_PATH=$(check_mount); then
+        echo ""
+        echo -e "${GREEN}✓ BOOTSEL mount detected: $MOUNT_PATH${NC}"
+        echo ""
+        break
+    fi
+    
+    printf "\r${YELLOW}Waiting for BOOTSEL mount... (${ELAPSED}s)${NC}"
+    sleep $POLL_INTERVAL
+done
+
+# Flash firmware
+echo -e "${YELLOW}Flashing firmware...${NC}"
+UF2_NAME=$(basename "$UF2_FILE")
+DEST_PATH="$MOUNT_PATH/$UF2_NAME"
+
+if ! cp "$UF2_FILE" "$DEST_PATH"; then
+    echo -e "${RED}✗ COPY FAILED${NC}"
+    exit 1
+fi
+
+sync
+
+# Verify
+if [ ! -f "$DEST_PATH" ]; then
+    echo -e "${RED}✗ VERIFICATION FAILED${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Flash complete${NC}"
+echo ""
+
+# Wait for reboot (mount disappears, serial appears)
+echo -e "${YELLOW}Waiting for reboot...${NC}"
+sleep 3
+
+# Wait for serial device
+echo -e "${YELLOW}Waiting for serial device...${NC}"
+MAX_WAIT=10
+START_TIME=$(date +%s)
+
+while true; do
+    CURRENT_TIME=$(date +%s)
+    ELAPSED=$((CURRENT_TIME - START_TIME))
+    
+    SERIAL_DEVICES=($(ls /dev/cu.usbmodem* 2>/dev/null | sort))
+    if [ ${#SERIAL_DEVICES[@]} -gt 0 ]; then
+        SERIAL_DEVICE="${SERIAL_DEVICES[-1]}"
+        echo ""
+        echo -e "${GREEN}✓ Serial device ready: $SERIAL_DEVICE${NC}"
+        echo ""
+        break
+    fi
+    
+    if [ $ELAPSED -ge $MAX_WAIT ]; then
+        echo -e "${YELLOW}⚠ Serial device not detected, but flash completed${NC}"
+        exit 0
+    fi
+    
+    sleep 0.5
+done
+
+# Check if --no-monitor flag is set
+NO_MONITOR=false
+for arg in "$@"; do
+    if [ "$arg" = "--no-monitor" ]; then
+        NO_MONITOR=true
+        break
+    fi
+done
+
+if [ "$NO_MONITOR" = false ]; then
+    # Open serial monitor
+    echo -e "${BLUE}Opening serial monitor...${NC}"
+    echo ""
+    exec "$SCRIPT_DIR/pico-monitor" --device "$SERIAL_DEVICE"
+else
+    echo -e "${GREEN}✓ Hot flash complete (monitor skipped)${NC}"
+    echo ""
+fi

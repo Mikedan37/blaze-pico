@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# pico-wait - Wait for Raspberry Pi Pico to be mounted in BOOTSEL mode
+#
+# Continuously checks for mounted Pico volumes (RP2350 or RPI-RP2).
+# Exits when a Pico is detected.
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Possible mount names
+MOUNT_NAMES=("RP2350" "RPI-RP2")
+MOUNT_BASE="/Volumes"
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}PICO WAIT${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${YELLOW}Waiting for Pico to be mounted in BOOTSEL mode...${NC}"
+echo -e "${YELLOW}(Hold BOOTSEL button and plug in USB)${NC}"
+echo ""
+
+# Check for existing mount
+check_mount() {
+    for mount_name in "${MOUNT_NAMES[@]}"; do
+        MOUNT_PATH="$MOUNT_BASE/$mount_name"
+        if [ -d "$MOUNT_PATH" ]; then
+            # Verify it's actually mounted (check for mount point)
+            if mountpoint -q "$MOUNT_PATH" 2>/dev/null || [ -f "$MOUNT_PATH/INDEX.HTM" ] || [ -f "$MOUNT_PATH/INFO_UF2.TXT" ]; then
+                echo "$MOUNT_PATH"
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+# Poll for mount (check every 0.5 seconds)
+POLL_INTERVAL=0.5
+MAX_WAIT=60  # Maximum wait time in seconds
+START_TIME=$(date +%s)
+
+while true; do
+    CURRENT_TIME=$(date +%s)
+    ELAPSED=$((CURRENT_TIME - START_TIME))
+    
+    if [ $ELAPSED -ge $MAX_WAIT ]; then
+        echo -e "${RED}✗ TIMEOUT${NC}"
+        echo "  No Pico detected after ${MAX_WAIT} seconds"
+        echo "  Make sure to:"
+        echo "    1. Hold BOOTSEL button"
+        echo "    2. Plug in USB cable"
+        echo "    3. Keep holding BOOTSEL for 1-2 seconds"
+        exit 1
+    fi
+    
+    if MOUNT_PATH=$(check_mount); then
+        echo ""
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${GREEN}✓ PICO DETECTED${NC}"
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo "  Mount point: $MOUNT_PATH"
+        echo ""
+        exit 0
+    fi
+    
+    # Show progress indicator
+    printf "\r${YELLOW}Waiting... (${ELAPSED}s)${NC}"
+    sleep $POLL_INTERVAL
+done

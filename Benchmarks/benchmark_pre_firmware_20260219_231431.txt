@@ -1,0 +1,280 @@
+[0/1] Planning build
+Building for production...
+[0/2] Write swift-version-39B54973F684ADAB.txt
+Build of product 'PerformanceBenchmark' complete! (0.08s)
+================================================================================
+PICO LED CONTROL PLANE - PERFORMANCE BENCHMARK SUITE
+================================================================================
+
+✅ Found Pico device: /dev/tty.usbmodem1101
+
+🔌 Connecting to device...
+[PicoSession] Waiting for BLAZE_READY signal (timeout: 5000ms)...
+[PicoSession] ⚠️ Connected but BLAZE_READY not received - commands will be blocked until ready
+✅ Connected
+⏳ Waiting for device readiness (BLAZE_READY)...
+⚠️ Device not ready after 10.0s - benchmarks may fail
+
+📊 END-TO-END BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Single Command Latency (100 iterations)...
+    ⚠️ Command 0 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 1 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 2 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 3 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 4 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 5 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 6 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 7 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 8 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 9 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 10 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 11 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 12 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 13 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 14 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 15 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 16 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 17 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 18 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 19 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 20 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 21 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 22 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 23 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 24 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 25 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 26 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 27 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 28 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 29 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 30 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 31 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 32 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 33 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 34 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 35 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 36 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 37 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 38 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 39 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 40 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 41 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 42 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 43 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 44 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 45 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 46 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 47 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 48 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 49 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 50 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 51 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 52 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 53 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 54 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 55 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 56 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 57 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 58 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 59 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 60 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 61 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 62 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 63 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 64 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 65 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 66 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 67 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 68 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 69 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 70 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 71 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 72 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 73 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 74 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 75 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 76 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 77 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 78 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 79 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 80 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 81 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 82 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 83 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 84 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 85 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 86 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 87 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 88 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 89 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 90 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 91 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 92 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 93 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 94 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 95 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 96 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 97 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 98 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Command 99 failed: Error Domain=PicoSession Code=-4 "Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands." UserInfo={NSLocalizedDescription=Device not ready - BLAZE_READY not received. Wait for device to finish booting before sending commands.}
+    ⚠️ Total Latency: No data
+    ⚠️ ACK Latency (estimated): No data
+    ⚠️ State Latency: No data
+  🔹 Batch Command Latency (50 iterations)...
+    ⚠️ Batch 0 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 1 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 2 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 3 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 4 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 5 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 6 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 7 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 8 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 9 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 10 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 11 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 12 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 13 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 14 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 15 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 16 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 17 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 18 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 19 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 20 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 21 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 22 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 23 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 24 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 25 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 26 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 27 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 28 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 29 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 30 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 31 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 32 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 33 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 34 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 35 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 36 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 37 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 38 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 39 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 40 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 41 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 42 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 43 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 44 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 45 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 46 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 47 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 48 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch 49 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Batch Latency: No data
+  🔹 Throughput Test (10s)...
+    ✅ Commands: 0
+    ❌ Errors: 15107700
+    ⚡ Throughput: 0.00 commands/second
+
+📊 COMPONENT BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Serial I/O Performance...
+    ⚡ Parse operations: 26296577 ops/sec
+  🔹 State Parsing Performance...
+    ⚡ Parse operations: 335181 ops/sec
+  🔹 Deduplication Overhead...
+    ⚡ Deduplication checks: 25621111 ops/sec
+
+📊 MEMORY BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Baseline Memory: 7.7 MB
+  🔹 After 100 Commands: 10.1 MB
+  🔹 Memory Delta: 2.4 MB
+  🔹 Bounded Set Memory...
+    📦 At capacity (1000): 10.1 MB
+    📦 After eviction: 10.1 MB
+    ✅ Set size: 1000 (bounded)
+
+📊 PIPELINE BENCHMARKS
+--------------------------------------------------------------------------------
+  🔹 Command Pipeline (Command → ACK → STATE_CHANGE)...
+    ⚠️ Pipeline 0 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 1 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 2 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 3 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 4 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 5 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 6 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 7 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 8 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 9 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 10 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 11 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 12 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 13 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 14 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 15 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 16 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 17 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 18 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 19 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 20 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 21 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 22 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 23 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 24 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 25 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 26 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 27 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 28 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 29 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 30 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 31 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 32 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 33 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 34 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 35 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 36 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 37 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 38 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 39 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 40 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 41 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 42 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 43 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 44 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 45 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 46 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 47 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 48 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline 49 failed: Error Domain=PicoSession Code=-3 "Too many pending commands (100) - possible command timeout leak" UserInfo={NSLocalizedDescription=Too many pending commands (100) - possible command timeout leak}
+    ⚠️ Pipeline Total: No data
+    ⚠️ ACK Phase: No data
+    ⚠️ STATE_CHANGE Phase: No data
+  🔹 Concurrent Commands (10 concurrent)...
+    ✅ Success rate: 10/10
+    ⚡ Total time: 0.09ms
+    ⚡ Avg per command: 0.01ms
+
+📊 STRESS TESTS
+--------------------------------------------------------------------------------
+  🔹 Rapid Command Burst (100 commands)...
+    ✅ Success: 0
+    ❌ Errors: 100
+    ⚡ Total time: 0.14ms
+    ⚡ Rate: 729444.17 commands/sec
+  🔹 Long-Running Stability (30s)...
+    ✅ Commands: 0
+    ❌ Errors: 589
+    ⚡ Throughput: 0.00 commands/sec
+    📦 Avg Memory: Zero KB
+    📦 Max Memory: Zero KB
+    📦 Min Memory: Zero KB
+    📦 Memory Delta: Zero KB
+
+
+================================================================================
+✅ ALL BENCHMARKS COMPLETE
+================================================================================

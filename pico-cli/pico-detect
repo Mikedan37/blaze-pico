@@ -1,0 +1,121 @@
+#!/bin/bash
+#
+# pico-detect - Device fingerprint detection using VID/PID
+#
+# Detects Raspberry Pi Pico devices by USB vendor/product IDs.
+# Prevents accidentally flashing wrong hardware.
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Raspberry Pi Foundation USB VID/PID
+# RP2040 Bootloader: VID=2E8A, PID=0003
+# RP2040 USB Serial: VID=2E8A, PID=000A
+PICO_VID="2E8A"
+PICO_PID_BOOTSEL="0003"
+PICO_PID_SERIAL="000A"
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}PICO DETECT${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Check if ioreg is available
+if ! command -v ioreg &> /dev/null; then
+    echo -e "${RED}✗ IOREG NOT FOUND${NC}"
+    echo "  ioreg is required for USB device detection"
+    exit 1
+fi
+
+# Find Pico devices via USB VID/PID
+detect_pico_devices() {
+    # Query USB devices for Raspberry Pi Foundation VID
+    ioreg -p IOUSB -l -w 0 | grep -A 20 "VendorID.*$PICO_VID" | while IFS= read -r line; do
+        if echo "$line" | grep -q "ProductID.*$PICO_PID_BOOTSEL\|ProductID.*$PICO_PID_SERIAL"; then
+            # Extract device path
+            DEVICE_PATH=$(echo "$line" | grep -o '/dev/.*' || echo "")
+            if [ -n "$DEVICE_PATH" ]; then
+                echo "$DEVICE_PATH"
+            fi
+        fi
+    done
+}
+
+# Find serial devices
+SERIAL_DEVICES=($(ls /dev/cu.usbmodem* 2>/dev/null | sort))
+MOUNT_NAMES=("RP2350" "RPI-RP2")
+MOUNT_BASE="/Volumes"
+
+check_mount() {
+    for mount_name in "${MOUNT_NAMES[@]}"; do
+        MOUNT_CHECK="$MOUNT_BASE/$mount_name"
+        if [ -d "$MOUNT_CHECK" ]; then
+            if mountpoint -q "$MOUNT_CHECK" 2>/dev/null || [ -f "$MOUNT_CHECK/INDEX.HTM" ] || [ -f "$MOUNT_CHECK/INFO_UF2.TXT" ]; then
+                echo "$MOUNT_CHECK"
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+# Detect devices
+echo -e "${YELLOW}Scanning for Raspberry Pi Pico devices...${NC}"
+echo ""
+
+PICO_COUNT=0
+
+# Check serial devices
+for serial_dev in "${SERIAL_DEVICES[@]}"; do
+    # Verify this is actually a Pico by checking USB tree
+    DEVICE_INFO=$(ioreg -p IOUSB -l -w 0 | grep -B 5 -A 15 "$serial_dev" | grep -E "VendorID|ProductID" || echo "")
+    
+    if echo "$DEVICE_INFO" | grep -q "$PICO_VID"; then
+        PID=$(echo "$DEVICE_INFO" | grep "ProductID" | head -1 | grep -o "[0-9A-Fa-f]*" | tail -1)
+        MODE=""
+        
+        if [ "$PID" = "$PICO_PID_BOOTSEL" ]; then
+            MODE="BOOTSEL"
+        elif [ "$PID" = "$PICO_PID_SERIAL" ]; then
+            MODE="SERIAL"
+        fi
+        
+        PICO_COUNT=$((PICO_COUNT + 1))
+        echo -e "${GREEN}✓ Pico #$PICO_COUNT${NC}"
+        echo "  Serial: $serial_dev"
+        echo "  Mode: $MODE"
+        echo "  VID: $PICO_VID"
+        echo "  PID: $PID"
+        echo ""
+    fi
+done
+
+# Check mounts
+if MOUNT_PATH=$(check_mount); then
+    PICO_COUNT=$((PICO_COUNT + 1))
+    echo -e "${GREEN}✓ Pico #$PICO_COUNT${NC}"
+    echo "  Mount: $MOUNT_PATH"
+    echo "  Mode: BOOTSEL"
+    echo ""
+fi
+
+if [ $PICO_COUNT -eq 0 ]; then
+    echo -e "${YELLOW}No Pico devices detected${NC}"
+    echo ""
+    echo "Make sure:"
+    echo "  - Pico is connected via USB"
+    echo "  - USB cable supports data (not charge-only)"
+    exit 1
+fi
+
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✓ Found $PICO_COUNT Pico device(s)${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""

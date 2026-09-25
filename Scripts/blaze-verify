@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# blaze-verify - End-to-end pipeline verification wrapper
+#
+# Runs the PipelineVerifier Swift executable
+#
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SWIFT_DIR="$PROJECT_ROOT/PicoLEDControlSwift"
+
+# Build if needed
+if [ ! -f "$SWIFT_DIR/.build/release/PipelineVerifier" ]; then
+    echo "Building PipelineVerifier..."
+    cd "$SWIFT_DIR"
+    swift build -c release
+fi
+
+# Run verifier
+exec "$SWIFT_DIR/.build/release/PipelineVerifier" "$@"

@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# pico-all - Complete firmware build and flash workflow
+#
+# Builds firmware, waits for BOOTSEL, flashes, and opens serial monitor.
+# This is the main developer command that replaces the entire manual workflow.
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}PICO ALL${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Step 1: Build firmware
+echo -e "${BLUE}[1/4] Building firmware...${NC}"
+echo ""
+if ! "$SCRIPT_DIR/pico-build"; then
+    echo -e "${RED}✗ Build failed, aborting${NC}"
+    exit 1
+fi
+echo ""
+
+# Step 2: Wait for BOOTSEL
+echo -e "${BLUE}[2/4] Waiting for Pico in BOOTSEL mode...${NC}"
+echo ""
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}⚠ HOLD BOOTSEL NOW${NC}"
+echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "  1. Hold BOOTSEL button on Pico"
+echo "  2. Plug in USB cable"
+echo "  3. Keep holding BOOTSEL for 1-2 seconds"
+echo ""
+sleep 2  # Give user time to read
+
+if ! "$SCRIPT_DIR/pico-wait"; then
+    echo -e "${RED}✗ Pico not detected, aborting${NC}"
+    exit 1
+fi
+echo ""
+
+# Step 3: Flash firmware
+echo -e "${BLUE}[3/4] Flashing firmware...${NC}"
+echo ""
+if ! "$SCRIPT_DIR/pico-flash"; then
+    echo -e "${RED}✗ Flash failed, aborting${NC}"
+    exit 1
+fi
+echo ""
+
+# Step 4: Wait for reboot and open monitor
+echo -e "${BLUE}[4/4] Waiting for reboot...${NC}"
+echo ""
+echo -e "${YELLOW}Waiting 3 seconds for Pico to reboot...${NC}"
+sleep 3
+echo ""
+
+echo -e "${BLUE}Opening serial monitor...${NC}"
+echo ""
+exec "$SCRIPT_DIR/pico-monitor"
