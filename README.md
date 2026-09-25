@@ -31,12 +31,17 @@ Commands travel as small binary frames instead of text or JSON:
 
 A single command such as "green on" is 31 bytes on the wire. Several commands can be batched into one frame: `[0][trace ID][count][cmd, val][cmd, val]...`
 
-**Why binary instead of JSON:**
+This is its own frame format, separate from the BlazeBinary encoding the voice app and AgentDaemon use between themselves.
+
+**Why binary?**
+
+The device side needs parsing to be simple, bounded, and deterministic, so the protocol uses compact fixed-layout frames. The point is predictable behavior on the microcontroller, not raw speed: round-trip time is dominated by USB timing and waiting for the acknowledgement, not by message size.
 
 - **Simple, safe parsing on the microcontroller.** The firmware reads fixed byte offsets into a fixed 64 byte buffer. No JSON library, no heap allocation, no string handling, and nothing a malformed message can make grow.
 - **Resync after garbage.** The `BLAZ` magic bytes mark where a frame starts, so the parser can find its place again after noise, and oversized frames are drained instead of being misread as commands.
 - **Traceability for free.** The 8 byte trace ID rides inside every frame and comes back in the Pico's acknowledgement, so the host can match each reply to the exact command that caused it.
 - **Batching.** Multiple commands fit in one frame and one USB write.
+- **Smaller messages.** A binary command is about half the size of the JSON equivalent. Nice to have, but secondary over USB.
 
 The firmware also accepts plain text commands (`RED ON`, `SERVO 90`, `STATUS`) so you can drive it by hand from a serial monitor.
 

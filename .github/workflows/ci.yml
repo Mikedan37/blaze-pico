@@ -2,30 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
-  build:
+  host:
     runs-on: macos-latest
-    
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v1
-      with:
-        swift-version: "5.9"
-    
-    - name: Build Swift
-      run: |
-        cd PicoLEDControlSwift
-        swift build -c release
-    
-    - name: Check Documentation
-      run: |
-        # Verify docs directory exists
-        test -d docs || exit 1
-        # Verify no emojis in docs (basic check)
-        ! grep -r "✅\|❌\|⚠️\|🔴\|🟢" docs/ || exit 1
+    - uses: actions/checkout@v4
+
+    - name: Build Swift host
+      working-directory: PicoLEDControlSwift
+      run: swift build -c release
+
+    # Hardware chaos tests skip themselves when no Pico is connected
+    - name: Test Swift host
+      working-directory: PicoLEDControlSwift
+      run: swift test

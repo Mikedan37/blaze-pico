@@ -85,7 +85,7 @@ final class TelemetryValidationTests: XCTestCase {
             TelemetryEvent(
                 traceID: 1,
                 tsWall: ISO8601DateFormatter().string(from: Date()),
-                tsMonoNs: 1000_000_000,
+                tsMonoNs: 1000_000,
                 component: .toolSerial,
                 stage: "serial_write_start",
                 durationMs: nil,
@@ -95,7 +95,7 @@ final class TelemetryValidationTests: XCTestCase {
             TelemetryEvent(
                 traceID: 1,
                 tsWall: ISO8601DateFormatter().string(from: Date()),
-                tsMonoNs: 2000_000_000, // 1ms later
+                tsMonoNs: 2000_000, // 1ms later
                 component: .toolSerial,
                 stage: "ack_received",
                 durationMs: 1.0,
@@ -105,7 +105,7 @@ final class TelemetryValidationTests: XCTestCase {
             TelemetryEvent(
                 traceID: 2,
                 tsWall: ISO8601DateFormatter().string(from: Date()),
-                tsMonoNs: 3000_000_000,
+                tsMonoNs: 3000_000,
                 component: .toolSerial,
                 stage: "serial_write_start",
                 durationMs: nil,
@@ -115,7 +115,7 @@ final class TelemetryValidationTests: XCTestCase {
             TelemetryEvent(
                 traceID: 2,
                 tsWall: ISO8601DateFormatter().string(from: Date()),
-                tsMonoNs: 5000_000_000, // 2ms later
+                tsMonoNs: 5000_000, // 2ms later
                 component: .toolSerial,
                 stage: "ack_received",
                 durationMs: 2.0,

@@ -5,6 +5,14 @@ import Combine
 /// Chaos tests that prove the hardware control plane survives real-world failure modes.
 /// These tests require a connected Pico device unless noted as "offline".
 final class ChaosTests: XCTestCase {
+
+    /// Skip hardware tests up front when no Pico is plugged in (e.g. CI).
+    private func skipWithoutPico() throws {
+        let dev = (try? FileManager.default.contentsOfDirectory(atPath: "/dev")) ?? []
+        if !dev.contains(where: { $0.hasPrefix("cu.usbmodem") }) {
+            throw XCTSkip("No Pico device connected")
+        }
+    }
     
     // MARK: - Test 1: Command Flood (Backpressure Proof)
     
@@ -14,6 +22,7 @@ final class ChaosTests: XCTestCase {
     /// - No deadlocks under load
     /// - All commands either succeed or fail gracefully (no hangs)
     func testCommandFlood() async throws {
+        try skipWithoutPico()
         let dm = DeviceManager.shared
         try await dm.warmStart()
         
@@ -82,6 +91,7 @@ final class ChaosTests: XCTestCase {
     /// Verifies the system detects and recovers from a mid-session disconnect.
     /// Uses session invalidation to simulate USB unplug.
     func testHotDisconnectRecovery() async throws {
+        try skipWithoutPico()
         let dm = DeviceManager.shared
         try await dm.warmStart()
         
@@ -216,6 +226,7 @@ final class ChaosTests: XCTestCase {
     /// Rapidly cycles session connect/disconnect to verify no resource leaks
     /// (file descriptors, memory, zombie tasks).
     func testRapidSessionCycles() async throws {
+        try skipWithoutPico()
         let dm = DeviceManager.shared
         try await dm.warmStart()
         
@@ -310,6 +321,7 @@ final class ChaosTests: XCTestCase {
     /// Sends state queries from multiple concurrent tasks to verify
     /// no data races or deadlocks in the state management layer.
     func testConcurrentStateQueries() async throws {
+        try skipWithoutPico()
         let dm = DeviceManager.shared
         try await dm.warmStart()
         
