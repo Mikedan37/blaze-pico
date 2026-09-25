@@ -106,7 +106,7 @@
 
 // Device identity (reported via CMD_STATUS and DEVICE_INFO)
 #define FW_VERSION       "1.4.0"
-#define PROTOCOL_VERSION 1
+#define PROTOCOL_VERSION 2  // 2 = BlazeBinary PicoCommandV1 frames with CRC-32 (1 = hand-packed payload)
 #define DEVICE_MODEL     "BLAZE_PICO"
 
 // Hardware-unique device ID (from RP2350 OTP, stable across reboots/reflashes)
