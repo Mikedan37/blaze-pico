@@ -191,17 +191,6 @@ public class PicoLEDController {
         // Mark serial write timestamp
         timestamps.serialWrite = Date()
         
-        // Build binary payload: [frameType(0), traceID(8), commandID(1), value(1)]
-        var payload = Data()
-        payload.append(0x00) // frameType = DATA
-        
-        // Append trace ID as 8 bytes (big-endian)
-        let traceIDBytes = withUnsafeBytes(of: traceID.bigEndian) { Data($0) }
-        payload.append(contentsOf: traceIDBytes)
-        
-        payload.append(commandID.rawValue)
-        payload.append(value)
-        
         // Initialize pipeline tracker if not already initialized
         if pipelineTracker == nil {
             pipelineTracker = PipelineTracker(traceID: traceID)
@@ -214,7 +203,7 @@ public class PicoLEDController {
             "value": "\(value)"
         ])
         
-        let packet = buildBlazePacket(payload: payload)
+        let packet = buildCommandPacket(PicoCommandV1(traceID: traceID, command: commandID, value: value))
         
         // Mark serial write start
         pipelineTracker?.markStage("serial_write_start")
@@ -273,12 +262,8 @@ public class PicoLEDController {
     
     /// Send packet without waiting for ACK (non-blocking)
     private func sendPacketNonBlocking(_ packet: BlazePacket, traceID: UInt64) throws {
-        // Encode packet to Data
-        let packetData = PacketEncoder.encode(packet)
-        
-        // Add "BLAZ" magic prefix
-        var fullPacket = Data("BLAZ".utf8)
-        fullPacket.append(packetData)
+        // "BLAZ" + BlazeTransport packet + CRC-32
+        let fullPacket = PicoWire.serialFrame(packet)
         
         // Ensure device is ready before sending
         if !isReady {
@@ -585,19 +570,9 @@ public class PicoLEDController {
             return try sendBinaryCommand(commandID: cmdID, value: value)
         }
         
-        // Fallback to legacy ASCII protocol
-        let commandBytes = uppercased.data(using: .ascii) ?? Data()
-        
-        var payload = Data()
-        payload.append(0x00) // frameType = DATA
-        payload.append(contentsOf: withUnsafeBytes(of: UInt32(1).bigEndian) { Data($0) }) // streamID
-        payload.append(commandBytes)
-        payload.append(0x00) // null terminator
-        
-        let packet = buildBlazePacket(payload: payload)
-        // Generate trace ID for legacy ASCII commands
-        let traceID = generateTraceID()
-        return try sendPacket(packet, traceID: traceID)
+        // Anything else (GPIO, PWM, ADC, SERVO SWEEP, ...) goes over the firmware's
+        // text command path as a plain line. Binary frames only carry PicoCommandV1.
+        return try sendAndReadResponse(Data((uppercased + "\n").utf8))
     }
     
     /// Query LED state from Pico
@@ -701,20 +676,11 @@ public class PicoLEDController {
         return states.isEmpty ? nil : states
     }
     
-    /// Build a BlazeTransport packet
-    private func buildBlazePacket(payload: Data) -> BlazePacket {
-        let header = BlazePacketHeader(
-            version: 1,
-            flags: 0,
-            connectionID: 1,
-            packetNumber: packetNumber,
-            streamID: 1,
-            payloadLength: UInt16(payload.count)
-        )
-        
+    /// Build the BlazeTransport packet carrying one PicoCommandV1
+    private func buildCommandPacket(_ command: PicoCommandV1) -> BlazePacket {
+        let packet = PicoWire.commandPacket(packetNumber: packetNumber, command: command)
         packetNumber += 1
-        
-        return BlazePacket(header: header, payload: payload)
+        return packet
     }
     
     /// Send a BlazeTransport packet and wait for ACK
@@ -723,13 +689,12 @@ public class PicoLEDController {
     ///   - traceID: Trace ID for correlation
     /// - Returns: True if ACK received, false if timeout
     private func sendPacket(_ packet: BlazePacket, traceID: UInt64) throws -> Bool {
-        // Encode packet to Data
-        let packetData = PacketEncoder.encode(packet)
-        
-        // Add "BLAZ" magic prefix (custom for Pico serial communication)
-        var fullPacket = Data("BLAZ".utf8)
-        fullPacket.append(packetData)
-        
+        return try sendAndReadResponse(PicoWire.serialFrame(packet))
+    }
+
+    /// Write bytes and parse the firmware's response for up to 500ms
+    /// - Returns: True if ACK received, false if timeout
+    private func sendAndReadResponse(_ fullPacket: Data) throws -> Bool {
         // Open serial port if not already open
         if !serialPort.isOpen {
             try serialPort.open(baudRate: 115200)

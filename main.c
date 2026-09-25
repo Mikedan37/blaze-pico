@@ -101,6 +101,8 @@
 #include "hardware/pwm.h"  // For servo motor PWM control
 #include "hardware/adc.h"  // For ADC reads on GP26-GP29
 #include "pico/unique_id.h"  // For hardware-burned unique board ID
+#include "blaze_serial.h"    // USB stream parser: text lines + BLAZ frames (portable, host-tested)
+#include "pico_command.h"    // PicoCommandV1 (BlazeBinary) command IDs and validation
 
 // Device identity (reported via CMD_STATUS and DEVICE_INFO)
 #define FW_VERSION       "1.4.0"
@@ -195,29 +197,27 @@ static void log_append(const char *fmt, ...) {
 // If a dedicated feedback pin is needed, assign an unused GPIO (e.g., GPIO 21).
 // #define FEEDBACK_PIN 21
 
-#define MAGIC0 'B'
-#define MAGIC1 'L'
-#define MAGIC2 'A'
-#define MAGIC3 'Z'
+#define MAX_LINE BLAZE_SERIAL_MAX_LINE
 
-#define HEADER_SIZE 16
-#define MAX_PAYLOAD 64  // Reduced for safety
-#define MAX_LINE 128
+// Command IDs (binary protocol). Defined once in protocol/pico_command.h.
+#define CMD_RED PICO_CMD_RED
+#define CMD_GREEN PICO_CMD_GREEN
+#define CMD_YELLOW PICO_CMD_YELLOW
+#define CMD_BLUE PICO_CMD_BLUE
+#define CMD_MULTI PICO_CMD_MULTI
+#define CMD_MULTI_RED PICO_CMD_MULTI_RED
+#define CMD_MULTI_GREEN PICO_CMD_MULTI_GREEN
+#define CMD_MULTI_BLUE PICO_CMD_MULTI_BLUE
+#define CMD_ALL PICO_CMD_ALL
+#define CMD_QUERY_STATE PICO_CMD_QUERY_STATE
+#define CMD_STATUS PICO_CMD_STATUS
+#define CMD_ENTER_BOOTLOADER PICO_CMD_ENTER_BOOTLOADER
+#define CMD_SERVO_SET PICO_CMD_SERVO_SET
 
-// Command IDs (binary protocol)
-#define CMD_RED 1
-#define CMD_GREEN 2
-#define CMD_YELLOW 3
-#define CMD_BLUE 4
-#define CMD_MULTI 5          // Turn all RGB channels on/off together
-#define CMD_MULTI_RED 6      // RGB multicolor - Red channel (GPIO 24)
-#define CMD_MULTI_GREEN 7    // RGB multicolor - Green channel (GPIO 25)
-#define CMD_MULTI_BLUE 8     // RGB multicolor - Blue channel (GPIO 26)
-#define CMD_ALL 10
-#define CMD_QUERY_STATE 20
-#define CMD_STATUS 21             // Health probe: returns ready, session, uptime, seq
-#define CMD_ENTER_BOOTLOADER 30
-#define CMD_SERVO_SET 40         // Set servo angle (value byte = 0-180)
+// A partial binary frame or a resync is abandoned after this much silence,
+// and the parser returns to text mode. Frames arrive in one USB write, so a
+// gap this long mid-frame means the frame was truncated.
+#define SERIAL_IDLE_MS 250
 
 // Servo pin and PWM configuration
 #define SERVO_PIN 21
@@ -1061,10 +1061,55 @@ void exec(char *cmd){
     }
 }
 
-// ---------- big endian helpers ----------
+// ---------- USB stream events ----------
 
-uint16_t read16(uint8_t *b){
-    return (b[0]<<8) | b[1];
+// Called by blaze_serial for every complete text line, fully validated binary
+// command, or rejected frame. A COMMAND event is only produced after the CRC,
+// BlazeTransport header, DATA frame and BlazeBinary PicoCommandV1 all
+// validated, so nothing below runs on partial or malformed input.
+static void on_serial_event(const blaze_serial_event_t *ev, void *context) {
+    (void)context;
+    switch (ev->kind) {
+        case BLAZE_SERIAL_EVENT_TEXT_LINE:
+            if (!accept_commands) {
+                PROTOCOL_LOG("ERROR:NOT_READY Device still booting");
+                return;
+            }
+            exec(ev->line);
+            break;
+
+        case BLAZE_SERIAL_EVENT_COMMAND:
+            DEBUG_LOG("PACKET RECEIVED TRACE:%llu SEQ:%lu CMD:%d VAL:%d", ev->command.trace_id,
+                      (unsigned long)ev->sequence, ev->command.command, ev->command.value);
+            if (!accept_commands) {
+                PROTOCOL_LOG("ERROR:NOT_READY Device still booting TRACE:%llu", ev->command.trace_id);
+                PROTOCOL_LOG("ERROR_EVENT: CODE:NOT_READY MSG:Device still booting TRACE:%llu", ev->command.trace_id);
+                return;
+            }
+            exec_binary_with_trace(ev->command.trace_id, ev->command.command, ev->command.value);
+            break;
+
+        case BLAZE_SERIAL_EVENT_ERROR:
+            if (ev->error == BLAZE_SERIAL_ERROR_COMMAND && ev->command_result == PICO_COMMAND_UNKNOWN_COMMAND) {
+                // Same lines the firmware has always sent for an unknown command.
+                PROTOCOL_LOG("ERROR: Unknown commandID %d TRACE:%llu", ev->command.command, ev->command.trace_id);
+                PROTOCOL_LOG("ERROR_EVENT: CODE:INVALID_CMD CMD:%d TRACE:%llu", ev->command.command,
+                             ev->command.trace_id);
+            } else if (ev->error == BLAZE_SERIAL_ERROR_COMMAND && ev->command_result == PICO_COMMAND_INVALID_VALUE) {
+                PROTOCOL_LOG("ERROR: Invalid value %d for commandID %d TRACE:%llu", ev->command.value,
+                             ev->command.command, ev->command.trace_id);
+                PROTOCOL_LOG("ERROR_EVENT: CODE:INVALID_VALUE CMD:%d VAL:%d TRACE:%llu", ev->command.command,
+                             ev->command.value, ev->command.trace_id);
+            } else if (ev->error == BLAZE_SERIAL_ERROR_COMMAND) {
+                PROTOCOL_LOG("ERROR: Rejected frame: %s", pico_command_result_name(ev->command_result));
+                PROTOCOL_LOG("ERROR_EVENT: CODE:BAD_FRAME REASON:%s", pico_command_result_name(ev->command_result));
+            } else {
+                PROTOCOL_LOG("ERROR: Rejected frame: %s (payload_len=%u)", blaze_serial_error_name(ev->error),
+                             (unsigned)ev->payload_length);
+                PROTOCOL_LOG("ERROR_EVENT: CODE:BAD_FRAME REASON:%s", blaze_serial_error_name(ev->error));
+            }
+            break;
+    }
 }
 
 // ---------- USB Session Lifecycle Management ----------
@@ -1353,26 +1398,10 @@ int main(){
     
     // Boot LED test is complete - protocol loop starts now
 
-    // State machine for dual-mode parsing
-    enum {
-        MODE_TEXT,      // Processing text commands
-        MODE_MAGIC_B,   // Saw 'B'
-        MODE_MAGIC_BL,  // Saw 'BL'
-        MODE_MAGIC_BLA, // Saw 'BLA'
-        MODE_BLAZE,     // Processing BlazeTransport packet
-        MODE_DRAIN      // Discarding oversized payload bytes before returning to text mode
-    } mode = MODE_TEXT;
-    
-    char text_line[MAX_LINE];
-    int text_pos = 0;
-    
-    uint8_t header[HEADER_SIZE];
-    int header_pos = 0;
-    uint16_t payload_len = 0;
-    uint8_t payload[MAX_PAYLOAD];
-    int payload_pos = 0;
-    uint16_t drain_remaining = 0;
-    uint64_t drain_start_ms = 0;
+    // USB stream parser (protocol/blaze_serial.c): text lines and BLAZ frames
+    static blaze_serial_t serial_parser;
+    blaze_serial_init(&serial_parser);
+    uint64_t last_byte_ms = 0;
 
     // ========================================
     // MAIN PROTOCOL LOOP WITH USB LIFECYCLE MANAGEMENT
@@ -1393,13 +1422,7 @@ int main(){
             handle_usb_disconnect();
             
             // Reset parser state to prevent stale partial packets from corrupting next session
-            mode = MODE_TEXT;
-            text_pos = 0;
-            header_pos = 0;
-            payload_pos = 0;
-            payload_len = 0;
-            drain_remaining = 0;
-            drain_start_ms = 0;
+            blaze_serial_init(&serial_parser);
             
             // Wait for reconnection (event-driven, no fixed delays)
             wait_for_usb_connection();
@@ -1436,282 +1459,15 @@ int main(){
             if (!stdio_usb_connected()) {
                 continue;
             }
-            // Check drain timeout even when no bytes arrive
-            if(mode == MODE_DRAIN && drain_start_ms > 0 && (now_ms - drain_start_ms > 5000)) {
-                printf("DRAIN_TIMEOUT: gave up waiting for %d remaining bytes (idle)\n", drain_remaining);
-                fflush(stdout);
-                drain_remaining = 0;
-                drain_start_ms = 0;
-                mode = MODE_TEXT;
-                text_pos = 0;
-                header_pos = 0;
-                payload_pos = 0;
+            // Abandon a partial frame / resync after a quiet period and return to text mode
+            if(blaze_serial_busy(&serial_parser) && (now_ms - last_byte_ms > SERIAL_IDLE_MS)) {
+                blaze_serial_idle(&serial_parser, on_serial_event, NULL);
             }
             goto check_heartbeat;
         }
         
-        uint8_t byte = (uint8_t)c;
-        
-        // State machine
-        switch(mode) {
-            case MODE_TEXT:
-                if(byte == MAGIC0) {
-                    mode = MODE_MAGIC_B;
-                } else if(byte == '\n' || byte == '\r') {
-                    if(text_pos > 0) {
-                        text_line[text_pos] = '\0';
-                        // Check readiness before executing text commands
-                        if(!accept_commands) {
-                            printf("ERROR:NOT_READY Device still booting\n");
-                            printf("ERROR_EVENT: CODE:NOT_READY MSG:Device still booting\n");
-                            fflush(stdout);
-                        } else {
-                            exec(text_line);
-                        }
-                        text_pos = 0;
-                    }
-                } else if(text_pos < MAX_LINE - 1 && byte >= 32 && byte <= 126) {
-                    text_line[text_pos++] = byte;
-                }
-                break;
-                
-            case MODE_MAGIC_B:
-                if(byte == MAGIC1) {
-                    mode = MODE_MAGIC_BL;
-                } else {
-                    // Not magic, treat 'B' as text (bounds-checked)
-                    if(text_pos < MAX_LINE - 1) {
-                        text_line[text_pos++] = 'B';
-                    }
-                    if(byte == MAGIC0) {
-                        mode = MODE_MAGIC_B;
-                    } else {
-                        if(byte == '\n' || byte == '\r') {
-                            if(text_pos > 0) {
-                                text_line[text_pos] = '\0';
-                                exec(text_line);
-                                text_pos = 0;
-                            }
-                        } else if(text_pos < MAX_LINE - 1 && byte >= 32 && byte <= 126) {
-                            text_line[text_pos++] = byte;
-                        }
-                        mode = MODE_TEXT;
-                    }
-                }
-                break;
-                
-            case MODE_MAGIC_BL:
-                if(byte == MAGIC2) {
-                    mode = MODE_MAGIC_BLA;
-                } else {
-                    // Not magic, treat 'BL' as text (bounds-checked: need 2 chars of space)
-                    if(text_pos < MAX_LINE - 2) {
-                        text_line[text_pos++] = 'B';
-                        text_line[text_pos++] = 'L';
-                    } else {
-                        text_pos = 0;
-                    }
-                    if(byte == MAGIC0) {
-                        mode = MODE_MAGIC_B;
-                    } else {
-                        if(byte == '\n' || byte == '\r') {
-                            if(text_pos > 0) {
-                                text_line[text_pos] = '\0';
-                                exec(text_line);
-                                text_pos = 0;
-                            }
-                        } else if(text_pos < MAX_LINE - 1 && byte >= 32 && byte <= 126) {
-                            text_line[text_pos++] = byte;
-                        }
-                        mode = MODE_TEXT;
-                    }
-                }
-                break;
-                
-            case MODE_MAGIC_BLA:
-                if(byte == MAGIC3) {
-                    // Magic found! Switch to BlazeTransport mode
-                    mode = MODE_BLAZE;
-                    header_pos = 0;
-                    payload_pos = 0;
-                    payload_len = 0;
-                } else {
-                    // Not magic, treat 'BLA' as text (bounds-checked: need 3 chars of space)
-                    if(text_pos < MAX_LINE - 3) {
-                        text_line[text_pos++] = 'B';
-                        text_line[text_pos++] = 'L';
-                        text_line[text_pos++] = 'A';
-                    } else {
-                        text_pos = 0;
-                    }
-                    if(byte == MAGIC0) {
-                        mode = MODE_MAGIC_B;
-                    } else {
-                        if(byte == '\n' || byte == '\r') {
-                            if(text_pos > 0) {
-                                text_line[text_pos] = '\0';
-                                exec(text_line);
-                                text_pos = 0;
-                            }
-                        } else if(text_pos < MAX_LINE - 1 && byte >= 32 && byte <= 126) {
-                            text_line[text_pos++] = byte;
-                        }
-                        mode = MODE_TEXT;
-                    }
-                }
-                break;
-                
-            case MODE_BLAZE:
-                if(header_pos < HEADER_SIZE) {
-                    // Reading header
-                    header[header_pos++] = byte;
-                    if(header_pos == HEADER_SIZE) {
-                        payload_len = read16(&header[14]);
-                        
-                        if(payload_len > MAX_PAYLOAD) {
-                            uint16_t clamped = payload_len < 4096 ? payload_len : 4096;
-                            printf("ERROR: Payload too big: %d (max: %d) — draining %d bytes\n", payload_len, MAX_PAYLOAD, clamped);
-                            drain_remaining = clamped;
-                            drain_start_ms = now_ms;
-                            mode = MODE_DRAIN;
-                            header_pos = 0;
-                            payload_pos = 0;
-                            payload_len = 0;
-                        }
-                    }
-                } else if(payload_pos < payload_len) {
-                    // Reading payload
-                    payload[payload_pos++] = byte;
-                    if(payload_pos == payload_len) {
-                        // Complete packet received
-                        DEBUG_LOG("PACKET RECEIVED");
-                        
-                        if(payload[0] == 0) {
-                            // DATA frame
-                            DEBUG_LOG("DATA payload_len=%d", payload_len);
-                            
-                            // New binary protocol: [frameType(0), traceID(8), commandID(1), value(1)] = 11 bytes
-                            // Legacy binary protocol: [frameType(0), commandID(1), value(1)] = 3 bytes
-                            // ASCII protocol: [frameType(0), streamID(4), "RED ON"...] = 5+ bytes
-                            
-                            if(payload_len >= 11 && payload[0] == 0) {
-                                // New binary protocol with trace ID
-                                // Single command: [frameType(0), traceID(8), commandID(1), value(1)] = 11 bytes
-                                // Batched commands: [frameType(0), traceID(8), count(1), cmd1(1), val1(1), cmd2(1), val2(1)...] = 12+ bytes
-                                
-                                uint64_t traceID = 0;
-                                // Read trace ID (8 bytes, big-endian)
-                                for(int i = 0; i < 8; i++) {
-                                    traceID = (traceID << 8) | payload[1 + i];
-                                }
-                                
-                                DEBUG_LOG("PACKET RECEIVED TRACE:%llu", traceID);
-                                
-                                // Check readiness before executing
-                                if(!accept_commands) {
-                                    printf("ERROR:NOT_READY Device still booting TRACE:%llu\n", traceID);
-                                    printf("ERROR_EVENT: CODE:NOT_READY MSG:Device still booting TRACE:%llu\n", traceID);
-                                    fflush(stdout);
-                                } else {
-                                    // Check if this is a batched command (payload_len > 11)
-                                    if(payload_len > 11) {
-                                        // Batched commands: [frameType(0), traceID(8), count(1), cmd1(1), val1(1)...]
-                                        uint8_t commandCount = payload[9];
-                                        #if ENABLE_DEBUG_LOGS
-                                        uint64_t batchStart = time_us_64();
-                                        DEBUG_LOG("BATCH START TRACE:%llu COUNT:%d", traceID, commandCount);
-                                        #endif
-                                        
-                                        for(int i = 0; i < commandCount && (12 + i*2) <= payload_len; i++) {
-                                            uint8_t commandID = payload[10 + i*2];
-                                            uint8_t value = payload[11 + i*2];
-                                            
-                                            DEBUG_LOG("BATCH CMD TRACE:%llu IDX:%d CMD:%d VAL:%d", traceID, i, commandID, value);
-                                            exec_binary_with_trace(traceID, commandID, value);
-                                        }
-                                        
-                                        #if ENABLE_DEBUG_LOGS
-                                        uint64_t batchEnd = time_us_64();
-                                        DEBUG_LOG("BATCH DONE TRACE:%llu EXEC_US:%llu", traceID, batchEnd - batchStart);
-                                        #endif
-                                    } else {
-                                        // Single command: [frameType(0), traceID(8), commandID(1), value(1)]
-                                        uint8_t commandID = payload[9];
-                                        uint8_t value = payload[10];
-                                        
-                                        DEBUG_LOG("BINARY: traceID=%llu cmdID=%d value=%d", traceID, commandID, value);
-                                        
-                                        exec_binary_with_trace(traceID, commandID, value);
-                                    }
-                                }
-                            } else if(payload_len == 3 && payload[0] == 0 && payload[1] >= 1) {
-                                // Legacy binary protocol (backward compatibility)
-                                uint8_t commandID = payload[1];
-                                uint8_t value = payload[2];
-                                DEBUG_LOG("BINARY: cmdID=%d value=%d (legacy)", commandID, value);
-                                if(!accept_commands) {
-                                    printf("ERROR:NOT_READY Device still booting\n");
-                                    fflush(stdout);
-                                } else {
-                                    exec_binary(commandID, value);
-                                }
-                            } else if(payload_len >= 5) {
-                                // Legacy ASCII protocol (backward compatibility)
-                                // Format: [frameType(0), streamID(4), "RED ON"...]
-                                // Null-terminate the command within payload bounds
-                                if(payload_len < MAX_PAYLOAD) {
-                                    payload[payload_len] = '\0';
-                                } else {
-                                    payload[MAX_PAYLOAD - 1] = '\0';
-                                }
-                                char *cmd = (char*)&payload[5];
-                                DEBUG_LOG("ASCII: %s", cmd);
-                                if(!accept_commands) {
-                                    printf("ERROR:NOT_READY Device still booting\n");
-                                    fflush(stdout);
-                                } else {
-                                    exec(cmd);
-                                }
-                            } else {
-                                printf("ERROR: Invalid payload length: %d (expected 3 for binary or 5+ for ASCII)\n", payload_len);
-                            }
-                        } else {
-                            printf("ERROR: Non-data frame ignored (frameType=%d)\n", payload[0]);
-                        }
-                        
-                        // Return to text mode
-                        mode = MODE_TEXT;
-                        text_pos = 0;
-                        header_pos = 0;
-                        payload_pos = 0;
-                        payload_len = 0;
-                    }
-                } else {
-                    // Shouldn't happen, but reset safely
-                    mode = MODE_TEXT;
-                    text_pos = 0;
-                    header_pos = 0;
-                    payload_pos = 0;
-                    payload_len = 0;
-                }
-                break;
-
-            case MODE_DRAIN:
-                drain_remaining--;
-                if(drain_remaining == 0 || (now_ms - drain_start_ms > 5000)) {
-                    if(drain_remaining > 0) {
-                        printf("DRAIN_TIMEOUT: gave up waiting for %d remaining bytes\n", drain_remaining);
-                        fflush(stdout);
-                    }
-                    drain_remaining = 0;
-                    drain_start_ms = 0;
-                    mode = MODE_TEXT;
-                    text_pos = 0;
-                    header_pos = 0;
-                    payload_pos = 0;
-                }
-                break;
-        }
+        last_byte_ms = now_ms;
+        blaze_serial_feed(&serial_parser, (uint8_t)c, on_serial_event, NULL);
         
 check_heartbeat:;
         // Heartbeat telemetry (every 2 seconds)

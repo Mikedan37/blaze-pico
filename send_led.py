@@ -1,4 +1,3 @@
-import struct
 import serial
 import time
 
@@ -7,23 +6,9 @@ BAUD = 115200
 
 
 def build_packet(command: str):
-
-    cmd_bytes = command.encode("ascii")
-
-    # frame type = 0 (DATA)
-    payload = b'\x00' + struct.pack(">I", 1) + cmd_bytes
-
-    header = (
-        bytes([1, 0]) +           # version, flags
-        struct.pack(">I", 1) +    # connection id
-        struct.pack(">I", 1) +    # packet number
-        struct.pack(">I", 1) +    # stream id
-        struct.pack(">H", len(payload))
-    )
-
-    # Add magic header "BLAZ" before packet
-    magic = b'BLAZ'
-    return magic + header + payload
+    # Text commands go over the firmware's text path as one line.
+    # Binary BLAZ frames only carry BlazeBinary PicoCommandV1 (see firmware/protocol/).
+    return (command + "\n").encode("ascii")
 
 
 def main():

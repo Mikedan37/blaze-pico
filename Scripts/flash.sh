@@ -228,22 +228,18 @@ python3 << PYEOF 2>/dev/null || true
 import serial
 import time
 import struct
+import zlib
 
 try:
     ser = serial.Serial('$SERIAL', 115200, timeout=1)
     ser.reset_input_buffer()
     time.sleep(0.3)
     
-    # Query state
-    payload = struct.pack(">BQBB", 0, 999999999, 20, 0)
-    header = (
-        bytes([1, 0]) +
-        struct.pack(">I", 1) +
-        struct.pack(">I", 1) +
-        struct.pack(">I", 1) +
-        struct.pack(">H", len(payload))
-    )
-    packet = b"BLAZ" + header + payload
+    # Query state: BLAZ + BlazeTransport header + DATA frame [0][seq] + PicoCommandV1 + CRC-32
+    command = struct.pack(">BQBB", 1, 999999999, 20, 0)   # version 1, traceID, QUERY_STATE, 0
+    payload = struct.pack(">BI", 0, 1) + command
+    covered = struct.pack(">BBIIIH", 1, 0, 1, 1, 1, len(payload)) + payload
+    packet = b"BLAZ" + covered + struct.pack(">I", zlib.crc32(covered))
     ser.write(packet)
     ser.flush()
     time.sleep(0.5)

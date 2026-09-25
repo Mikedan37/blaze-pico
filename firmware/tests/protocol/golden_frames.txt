@@ -1,0 +1,26 @@
+# Golden PicoCommandV1 vectors, shared by the C tests (test_protocol.c) and the
+# Swift tests (PicoLEDControlSwift/Tests/PicoLEDControlTests/PicoWireTests.swift).
+#
+#   command <version> <traceID hex> <command> <value> <BlazeBinary bytes>
+#   frame   <packetNumber> <traceID hex> <command> <value> <expect> <full serial frame bytes>
+#
+# Frame layout: "BLAZ" | BlazeTransport header (version 1, flags 0, connectionID 1,
+# packetNumber, streamID 1, payloadLength) | DATA frame (type 0, sequence = packetNumber)
+# | PicoCommandV1 | CRC-32 (zlib crc32, big-endian) over header + payload.
+# Frame bytes here were generated with Python zlib, a third independent CRC-32.
+# <expect> is what the firmware does with it: OK, or the rejection reason.
+
+command 1 0123456789abcdef 3 90 010123456789abcdef035a
+command 1 0000000000000000 0 0 0100000000000000000000
+command 1 ffffffffffffffff 255 255 01ffffffffffffffffffff
+command 1 00000000000004d2 40 180 0100000000000004d228b4
+
+# The reference example: command 3 (YELLOW) with value 0x5A. Byte-exact on the
+# wire, but YELLOW only accepts 0 or 1, so the firmware must reject it.
+frame 1 0123456789abcdef 3 90 INVALID_VALUE 424c415a010000000001000000010000000100100000000001010123456789abcdef035a4427e15a
+
+# Servo to 90 degrees: valid end to end.
+frame 1 0123456789abcdef 40 90 OK 424c415a010000000001000000010000000100100000000001010123456789abcdef285a32571c33
+
+# Red on, packet 7.
+frame 7 00000000000004d2 1 1 OK 424c415a0100000000010000000700000001001000000000070100000000000004d20101ea338b5c

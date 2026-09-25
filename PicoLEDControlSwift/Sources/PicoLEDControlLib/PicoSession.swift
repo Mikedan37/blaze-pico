@@ -485,18 +485,8 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             
             do {
                 let probeTraceID = generateTraceID()
-                var payload = Data()
-                payload.append(0x00) // frameType
-                payload.append(contentsOf: withUnsafeBytes(of: probeTraceID.bigEndian) { Data($0) })
-                payload.append(CommandID.status.rawValue) // 21
-                payload.append(0) // value (unused for STATUS)
-                
-                let packet = buildBlazePacket(payload: payload)
-                let packetData = PacketEncoder.encode(packet)
-                var fullPacket = Data("BLAZ".utf8)
-                fullPacket.append(packetData)
-                
-                try serialPort.write(fullPacket)
+                let packet = buildCommandPacket(PicoCommandV1(traceID: probeTraceID, command: .status, value: 0))
+                try serialPort.write(PicoWire.serialFrame(packet))
                 
                 let response = try serialPort.read(maxBytes: 512, timeoutMs: 1000)
                 let text = Self.resilientString(from: response)
@@ -1444,19 +1434,12 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             let (commandID, value, traceID) = commandsToSend[0]
             let actualTraceID = traceID ?? generateTraceID()
             
-            // Build binary payload
-            var payload = Data()
-            payload.append(0x00) // frameType
-            payload.append(contentsOf: withUnsafeBytes(of: actualTraceID.bigEndian) { Data($0) })
-            payload.append(commandID.rawValue)
-            payload.append(value)
-            
-            // Build packet
-            let packet = buildBlazePacket(payload: payload)
+            // Build packet: BlazeBinary PicoCommandV1 in a BlazeTransport DATA frame
+            let packet = buildCommandPacket(PicoCommandV1(traceID: actualTraceID, command: commandID, value: value))
             
             // Send (non-blocking, connection stays open)
             // RULE 5: writeLock ensures single writer
-            try sendPacketNonBlocking(packet)
+            try sendPacketsNonBlocking([packet])
             
             print("[PicoSession] 📤 Sent single command: commandID=\(commandID.rawValue), value=\(value), traceID=\(formatTraceID(actualTraceID))")
             fflush(stdout)
@@ -1465,22 +1448,15 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             // Use first command's traceID for the batch (or generate new one)
             let batchTraceID = commandsToSend.first?.2 ?? generateTraceID()
             
-            // Build batched payload: [frameType][traceID][count][cmd1][val1][cmd2][val2]...
-            var payload = Data()
-            payload.append(0x00) // frameType
-            payload.append(contentsOf: withUnsafeBytes(of: batchTraceID.bigEndian) { Data($0) })
-            payload.append(UInt8(commandsToSend.count)) // Command count
-            
-            for (cmdID, value, _) in commandsToSend {
-                payload.append(cmdID.rawValue)
-                payload.append(value)
+            // One PicoCommandV1 frame per command, all carrying the batch trace ID,
+            // written back to back in a single USB write. The firmware ACKs each
+            // command with the batch trace ID, as it did for the old batch payload.
+            let packets = commandsToSend.map { cmdID, value, _ in
+                buildCommandPacket(PicoCommandV1(traceID: batchTraceID, command: cmdID, value: value))
             }
             
-            // Build packet
-            let packet = buildBlazePacket(payload: payload)
-            
             // Send batch
-            try sendPacketNonBlocking(packet)
+            try sendPacketsNonBlocking(packets)
             
             print("[PicoSession] 📤 Sent batch: \(commandsToSend.count) commands, traceID=\(formatTraceID(batchTraceID))")
             for (idx, (cmdID, value, _)) in commandsToSend.enumerated() {
@@ -2002,22 +1978,13 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         
         let actualTraceID = traceID ?? generateTraceID()
         
-        // Build batched payload: [frameType][traceID][count][cmd1][val1][cmd2][val2]...
-        var payload = Data()
-        payload.append(0x00) // frameType
-        payload.append(contentsOf: withUnsafeBytes(of: actualTraceID.bigEndian) { Data($0) })
-        payload.append(UInt8(commands.count)) // Command count
-        
-        for (cmdID, value) in commands {
-            payload.append(cmdID.rawValue)
-            payload.append(value)
+        // One PicoCommandV1 frame per command, same trace ID, one USB write
+        let packets = commands.map { cmdID, value in
+            buildCommandPacket(PicoCommandV1(traceID: actualTraceID, command: cmdID, value: value))
         }
-        
-        // Build packet
-        let packet = buildBlazePacket(payload: payload)
-        
+
         // Send
-        try sendPacketNonBlocking(packet)
+        try sendPacketsNonBlocking(packets)
     }
     
     /// Generate trace ID
@@ -2048,26 +2015,17 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     }
     
     /// Build BlazeTransport packet
-    private func buildBlazePacket(payload: Data) -> BlazePacket {
-        let header = BlazePacketHeader(
-            version: 1,
-            flags: 0,
-            connectionID: 1,
-            packetNumber: packetNumber,
-            streamID: 1,
-            payloadLength: UInt16(payload.count)
-        )
-        
+    private func buildCommandPacket(_ command: PicoCommandV1) -> BlazePacket {
+        let packet = PicoWire.commandPacket(packetNumber: packetNumber, command: command)
         packetNumber += 1
-        
-        return BlazePacket(header: header, payload: payload)
+        return packet
     }
     
     /// Send packet non-blocking (connection stays open)
     /// RULE 5: Single writer lock ensures no concurrent USB writes
     /// RULE 1: Emit error event on hard failure so DeviceManager can handleHardFailure()
     /// CRITICAL GAP #2: Check invalidation before write
-    private func sendPacketNonBlocking(_ packet: BlazePacket) throws {
+    private func sendPacketsNonBlocking(_ packets: [BlazePacket]) throws {
         // Check invalidation BEFORE acquiring writeLock (lock order: invalidationLock(6) < writeLock(7))
         invalidationLock.lock()
         let invalid = isInvalidated
@@ -2078,9 +2036,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                          userInfo: [NSLocalizedDescriptionKey: "Session was invalidated during recovery"])
         }
         
-        let packetData = PacketEncoder.encode(packet)
-        var fullPacket = Data("BLAZ".utf8)
-        fullPacket.append(packetData)
+        let fullPacket = packets.reduce(into: Data()) { $0.append(PicoWire.serialFrame($1)) }
         
         // writeLock is innermost -- no other locks acquired while held
         writeLock.lock()

@@ -48,6 +48,17 @@ pico_sdk_init()
 
 add_executable(blaze_pico
     main.c
+    # Portable protocol stack, also built and tested on the host (firmware/tests/protocol)
+    firmware/protocol/blaze_serial.c
+    firmware/protocol/pico_command.c
+    firmware/third_party/blazebinary/blaze_binary.c
+    firmware/third_party/blazetransport/blaze_transport.c
+)
+
+target_include_directories(blaze_pico PRIVATE
+    firmware/protocol
+    firmware/third_party/blazebinary
+    firmware/third_party/blazetransport
 )
 
 target_compile_options(blaze_pico PRIVATE

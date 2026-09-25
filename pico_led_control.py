@@ -15,7 +15,6 @@ Or as a module:
     send_command("RED ON")
 """
 
-import struct
 import serial
 import sys
 import time
@@ -27,39 +26,14 @@ DEFAULT_BAUD = 115200
 
 def build_blaze_packet(command: str):
     """
-    Build a BlazeTransport packet for the given command.
-    
-    Packet format:
-        Magic: "BLAZ" (4 bytes)
-        Header: 16 bytes
-            bytes 0-1: version(1), flags(1)
-            bytes 2-5: connection_id (big-endian uint32)
-            bytes 6-9: packet_number (big-endian uint32)
-            bytes 10-13: stream_id (big-endian uint32)
-            bytes 14-15: payload_length (big-endian uint16)
-        Payload:
-            byte 0: frameType (0 = DATA)
-            bytes 1-4: streamID (big-endian uint32)
-            bytes 5+: ASCII command string
+    Encode a text command for the Pico.
+
+    Text commands ("RED ON", "SERVO 90", "GPIO SET 2 1", ...) go over the
+    firmware's text command path as a single line. Binary BLAZ frames only
+    carry BlazeBinary PicoCommandV1 messages; see firmware/protocol/ and
+    PicoLEDControlSwift/Sources/PicoLEDControlLib/PicoWire.swift.
     """
-    cmd_bytes = command.encode("ascii")
-    
-    # Payload: frameType(1) + streamID(4) + command
-    payload = b'\x00' + struct.pack(">I", 1) + cmd_bytes
-    
-    # Header: version(1) + flags(1) + connection_id(4) + packet_num(4) + stream_id(4) + payload_len(2)
-    header = (
-        bytes([1, 0]) +           # version, flags
-        struct.pack(">I", 1) +    # connection id
-        struct.pack(">I", 1) +    # packet number
-        struct.pack(">I", 1) +    # stream id
-        struct.pack(">H", len(payload))  # payload length
-    )
-    
-    # Magic header
-    magic = b'BLAZ'
-    
-    return magic + header + payload
+    return (command + "\n").encode("ascii")
 
 
 def send_command(command: str, port: str = None, baud: int = DEFAULT_BAUD, timeout: float = 2.0):

@@ -22,28 +22,44 @@ Voice app -> AgentDaemon -> DeviceManager -> PicoSession -> USB serial -> Pico f
 
 ## The Protocol
 
-Commands travel as small binary frames instead of text or JSON:
+Every Mac to Pico command is a BlazeBinary message, carried in a BlazeTransport packet, inside a small serial envelope. Each layer has one job:
+
+| Layer | Job | Where |
+|---|---|---|
+| **BlazeBinary** | Serializes the command. Same bytes from Swift and from C. | Swift: BlazeBinary package. C: `firmware/third_party/blazebinary` |
+| **BlazeTransport packet** | Packet metadata: 16 byte header plus a DATA frame with a sequence number | Swift: `PacketEncoder`. C: `firmware/third_party/blazetransport` |
+| **BLAZ serial envelope** | Finds frame boundaries in the USB byte stream and checks integrity | `firmware/protocol/blaze_serial.c`, `PicoWire.swift` |
+| **USB CDC** | Moves the bytes | |
+
+One command on the wire (40 bytes), servo to 90 degrees:
 
 ```
-"BLAZ"  | 16 byte header | payload (up to 64 bytes)
-                           [0][trace ID, 8 bytes][command][value]
+42 4c 41 5a                                          "BLAZ"            serial envelope: sync marker
+01 00 00000001 00000001 00000001 0010                BlazeTransport    version 1, flags, connection, packet 1, stream 1, payload length 16
+00 00000001                                          DATA frame        frame type 0, sequence 1
+01 0123456789abcdef 28 5a                            BlazeBinary       PicoCommandV1: version 1, trace ID, command 40 (servo), value 90
+32571c33                                             CRC-32            serial envelope: integrity over header + payload
 ```
 
-A single command such as "green on" is 31 bytes on the wire. Several commands can be batched into one frame: `[0][trace ID][count][cmd, val][cmd, val]...`
+`PicoCommandV1` is four BlazeBinary fields in order: `version UInt8`, `traceID UInt64`, `command UInt8`, `value UInt8`. The version is checked first, so a future version is rejected instead of being misread. A batch of commands is sent as several frames in one USB write, all carrying the batch's trace ID.
 
-This is its own frame format, separate from the BlazeBinary encoding the voice app and AgentDaemon use between themselves.
+BlazeBinary's own framing (`BlazeBinaryFrame`) is not used here: BlazeTransport and the serial envelope already frame the message, and nesting a third frame would only add bytes.
 
-**Why binary?**
+**Why BlazeBinary on a microcontroller?**
 
-The device side needs parsing to be simple, bounded, and deterministic, so the protocol uses compact fixed-layout frames. The point is predictable behavior on the microcontroller, not raw speed: round-trip time is dominated by USB timing and waiting for the acknowledgement, not by message size.
+- **One serialization format across Swift and C.** The Mac and the Pico agree byte for byte, and golden byte tests in both languages prove it (`firmware/tests/protocol/golden_frames.txt`).
+- **Bounded, deterministic parsing.** The C side reads fixed fields into fixed buffers. No heap allocation, no JSON library, no string parsing.
+- **Portable.** The C codec has no Pico SDK dependency. The same code can decode the same messages on an ESP32 or STM32 over a different transport.
+- **Explicit schema evolution.** The message version is the first field, and the firmware rejects versions it does not know.
+- **Traceability.** The trace ID in every command comes back in the Pico's `ACK TRACE:<id>`, so the host can match each reply to the command that caused it.
 
-- **Simple, safe parsing on the microcontroller.** The firmware reads fixed byte offsets into a fixed 64 byte buffer. No JSON library, no heap allocation, no string handling, and nothing a malformed message can make grow.
-- **Resync after garbage.** The `BLAZ` magic bytes mark where a frame starts, so the parser can find its place again after noise, and oversized frames are drained instead of being misread as commands.
-- **Traceability for free.** The 8 byte trace ID rides inside every frame and comes back in the Pico's acknowledgement, so the host can match each reply to the exact command that caused it.
-- **Batching.** Multiple commands fit in one frame and one USB write.
-- **Smaller messages.** A binary command is about half the size of the JSON equivalent. Nice to have, but secondary over USB.
+Speed is not the reason. Round trip time is dominated by USB timing and waiting for the acknowledgement, not by message size.
 
-The firmware also accepts plain text commands (`RED ON`, `SERVO 90`, `STATUS`) so you can drive it by hand from a serial monitor.
+**How the firmware handles bad input**
+
+Nothing touches the hardware until the whole frame has been checked: CRC, header, DATA frame, BlazeBinary payload, message version, command ID, and value range. Anything that fails is rejected with an `ERROR:` line and nothing runs. After a bad frame the parser skips ahead to the next `BLAZ` marker and never treats binary bytes as a text command. If a truncated frame swallowed the start of the next one, the parser rescans the swallowed bytes and still finds it. The parser is plain C with no Pico SDK dependency, so all of this is tested on the Mac (`make -C firmware/tests/protocol test`), including a fuzz run.
+
+The firmware also accepts plain text commands (`RED ON`, `SERVO 90`, `GPIO SET 2 1`, `STATUS`) so you can drive it by hand from a serial monitor. The voice app and AgentDaemon talk to each other in BlazeBinary as well, over a Unix socket.
 
 ---
 
@@ -130,11 +146,14 @@ swift build -c release
 ### Tests
 
 ```bash
-cd PicoLEDControlSwift
-swift test
+# Host library: wire format golden bytes, telemetry, chaos tests
+cd PicoLEDControlSwift && swift test
+
+# Firmware protocol stack, built for the Mac: golden frames, stream robustness, fuzz
+make -C firmware/tests/protocol test
 ```
 
-Protocol and telemetry tests run anywhere. The chaos tests (command flood, hot unplug, rapid reconnects) need a Pico connected.
+Everything runs without hardware except the chaos tests (command flood, hot unplug, rapid reconnects), which skip unless a Pico is connected. The on-device checklist is in [Docs/HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md).
 
 ---
 
@@ -147,7 +166,11 @@ blaze-pico/
 ├── PicoLEDControlSwift/   # Swift host library, CLI, metrics tool, tests
 ├── Benchmarks/            # Hardware benchmark suite and past results
 ├── pico-cli/              # Build / flash / monitor tools
-├── firmware/              # Prebuilt .uf2 files and test firmware
+├── firmware/
+│   ├── protocol/          # Serial parser + PicoCommandV1 (portable C, runs on the Pico and in tests)
+│   ├── third_party/       # Vendored BlazeBinary C and BlazeTransport C decoder
+│   ├── tests/protocol/    # Host tests and golden frames for the protocol stack
+│   └── bin/, tests/       # Prebuilt .uf2 files and test firmware
 ├── Scripts/               # Test and flash scripts
 └── Docs/                  # Design notes and debugging write-ups
 ```
@@ -158,7 +181,7 @@ Good places to start in `Docs/`: [SYSTEM_ARCHITECTURE.md](Docs/SYSTEM_ARCHITECTU
 
 ## Known Limitations
 
-- Binary frames have no checksum. USB already checks for transmission errors, but a checksum would catch host-side bugs.
 - PWM timing assumes a 125 MHz system clock. The RP2350 defaults to 150 MHz, so servo and PWM timing need verifying on the Pico 2.
 - Some generic PWM pins share a hardware PWM unit with the servo and RGB LED.
+- Replies from the Pico (`ACK`, `STATE_CHANGE`, `HEARTBEAT`) are still text lines, not BlazeBinary.
 - Manages one Pico at a time.

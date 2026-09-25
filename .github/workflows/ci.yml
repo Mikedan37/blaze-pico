@@ -20,3 +20,13 @@ jobs:
     - name: Test Swift host
       working-directory: PicoLEDControlSwift
       run: swift test
+
+  firmware-protocol:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    # The exact C the Pico runs (firmware/protocol + vendored BlazeBinary C and
+    # BlazeTransport decoder), built for the host with -Werror, ASan and UBSan
+    - name: Protocol tests
+      run: make -C firmware/tests/protocol test
