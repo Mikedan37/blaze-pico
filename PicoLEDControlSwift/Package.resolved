@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "blazebinary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Mikedan37/BlazeBinary.git",
+      "state" : {
+        "revision" : "dfa47fab5067a6e529d6f457c73e8e3100ea2699",
+        "version" : "2.0.0"
+      }
+    },
+    {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",

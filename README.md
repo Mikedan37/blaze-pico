@@ -129,7 +129,7 @@ Note: `PicoLEDControl --full-pipeline` simulates the voice and LLM stages with f
 | Protocol stack (C), BlazeBinary Swift/C interop | Tested on the Mac: golden bytes, stream robustness, fuzz |
 | **Real hardware, ESP8266 validation board** | **Verified**: handshake, commands with trace-matched ACKs, rejection of corrupt / wrong-version / invalid frames, reconnect, physical reset, refusal of `PROTOCOL=1` firmware. See [firmware/esp8266-validation](firmware/esp8266-validation/README.md) |
 | Real hardware, Pico 2 W with this protocol | **Not yet run.** Checklist in [Docs/HARDWARE_TEST_PLAN.md](Docs/HARDWARE_TEST_PLAN.md) |
-| Host build for other people | **Needs BlazeBinary 2.0.0.** Until it is published, `PicoLEDControlSwift/Package.swift` points at a local BlazeBinary checkout (`../../../Developer/blaze-interop/BlazeBinary`, branch `feature/blazebinary-c-interop`) |
+| Host build | Uses [BlazeBinary 2.0.0](https://github.com/Mikedan37/BlazeBinary/releases/tag/v2.0.0) from GitHub. A fresh clone builds and runs all non-hardware tests with no other checkout |
 
 ---
 

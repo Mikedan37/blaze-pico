@@ -5,7 +5,7 @@ Copied into this repo so the firmware builds without the ProjectBlaze repos. Kee
 ## blazebinary/
 
 - Source: BlazeBinary `c/include/blaze_binary.h` and `c/src/blaze_binary.c`
-- Version: branch `feature/blazebinary-c-interop`, commit `e3b14f5`
+- Version: [BlazeBinary v2.0.0](https://github.com/Mikedan37/BlazeBinary/releases/tag/v2.0.0) (`dfa47fa`); the C files are unchanged since `e3b14f5`
 - Changes: none (byte-identical copy)
 - Wire compatibility with Swift BlazeBinary is proven in the BlazeBinary repo by `Fixtures/golden/primitives.txt`.
 

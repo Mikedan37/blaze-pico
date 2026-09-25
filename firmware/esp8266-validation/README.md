@@ -10,10 +10,10 @@
 
 ## 1. Run the demo (about 30 seconds)
 
-Open a terminal in Cursor (**Ctrl+`**) and run:
+From the repository root:
 
 ```bash
-cd ~/pico/blaze-pico-esp/firmware/esp8266-validation
+cd firmware/esp8266-validation
 ./demo.sh
 ```
 
@@ -102,7 +102,7 @@ The console picks up the new command from `pico_command.h` automatically, so `bl
 
 ```bash
 cd ../../PicoLEDControlSwift
-BLAZE_HW_PORT=/dev/cu.usbserial-0001 swift test --filter ESP8266HardwareTests
+BLAZE_HW_PORT=/dev/cu.usbserial-XXXX swift test --filter ESP8266HardwareTests   # your port: ls /dev/cu.usbserial*
 ```
 
 These are skipped unless `BLAZE_HW_PORT` is set, so normal `swift test` and CI never need a board. More options (reset test, PROTOCOL=1 test) are at the top of `Tests/PicoLEDControlTests/ESP8266HardwareTests.swift`.
@@ -117,12 +117,20 @@ These are skipped unless `BLAZE_HW_PORT` is set, so normal `swift test` and CI n
 | LED doesn't light but checks pass | The firmware is switching GPIO2 (the board confirms each change with `R=1` / `R=0`). Look for the tiny blue LED on the metal module. If your board's LED is elsewhere, change `LED_PIN`. |
 | Board resets when you connect | Normal for this board: opening the port reboots it. The host handles it. |
 
-## Restore the board's original firmware
+## Back up and restore the board's original firmware
 
-The original 4 MB flash was backed up and verified before anything was flashed:
+Flashing replaces whatever is on the board. Back it up first (4 MB, about 6 minutes at 115200 baud), then check the backup against the chip:
 
 ```bash
-.venv/bin/python -m esptool --port /dev/cu.usbserial-0001 write_flash 0 ~/pico/esp8266-backups/esp8266-40f5202d4ef1-20260925-083315.bin
+PORT=/dev/cu.usbserial-XXXX   # ls /dev/cu.usbserial*
+.venv/bin/python -m esptool --port $PORT --baud 115200 read_flash 0 0x400000 original-firmware.bin
+.venv/bin/python -m esptool --port $PORT --baud 115200 verify_flash 0 original-firmware.bin
+```
+
+To put it back later:
+
+```bash
+.venv/bin/python -m esptool --port $PORT write_flash 0 original-firmware.bin
 ```
 
 ## Files

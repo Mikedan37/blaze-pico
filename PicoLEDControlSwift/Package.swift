@@ -14,9 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
-        // BlazeBinary with UInt8 support (feature/blazebinary-c-interop). Local path until that
-        // branch is pushed and tagged; switch to the GitHub URL before this package is published.
-        .package(path: "../../../Developer/blaze-interop/BlazeBinary"),
+        .package(url: "https://github.com/Mikedan37/BlazeBinary.git", from: "2.0.0"),
     ],
     targets: [
         .target(
