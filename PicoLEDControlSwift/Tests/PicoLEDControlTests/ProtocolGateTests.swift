@@ -14,6 +14,7 @@ final class FakePico {
     private var thread: Thread?
 
     private var _protocolLine: String? = "PROTOCOL=2"
+    private var _sessionID: UInt32? = 0x0000_ABCD
     private var _answersDeviceInfo = true
     private var _binaryFrames: [Data] = []
     private var _textLines: [String] = []
@@ -27,6 +28,12 @@ final class FakePico {
     var answersDeviceInfo: Bool {
         get { lock.lock(); defer { lock.unlock() }; return _answersDeviceInfo }
         set { lock.lock(); _answersDeviceInfo = newValue; lock.unlock() }
+    }
+    /// Session announced with the readiness lines, like real firmware (nil = never announced,
+    /// i.e. a late join). Changing it simulates a reboot into a new session.
+    var sessionID: UInt32? {
+        get { lock.lock(); defer { lock.unlock() }; return _sessionID }
+        set { lock.lock(); _sessionID = newValue; lock.unlock() }
     }
     var binaryFrames: [Data] { lock.lock(); defer { lock.unlock() }; return _binaryFrames }
     var textLines: [String] { lock.lock(); defer { lock.unlock() }; return _textLines }
@@ -67,7 +74,8 @@ final class FakePico {
 
             // Readiness signals, repeated because the host flushes input on open.
             if tick % 3 == 0 {
-                emit("BLAZE_READY\nHEARTBEAT: UPTIME:1 READY:1 R=0 G=0 Y=0 B=0 MR=0 MG=0 MB=0 S=90\n")
+                let session = sessionID.map { String(format: "SESSION:%08X\n", $0) } ?? ""
+                emit(session + "BLAZE_READY\nHEARTBEAT: UPTIME:1 READY:1 R=0 G=0 Y=0 B=0 MR=0 MG=0 MB=0 S=90\n")
             }
             tick += 1
             usleep(20_000)
@@ -247,13 +255,12 @@ final class ProtocolGateTests: XCTestCase {
     func testNewSessionOnV1FirmwareBlocksCommands() async throws {
         session = PicoSession(portPath: pico.slavePath)
         try await session.connect()
-        pico.emit("SESSION:0000ABCD\n")
         usleep(200_000)
         XCTAssertTrue(session.isReady)
 
         pico.protocolLine = "PROTOCOL=1"
         let before = pico.binaryFrames.count
-        pico.emit("SESSION:0000BEEF\n")
+        pico.sessionID = 0x0000_BEEF
 
         XCTAssertTrue(wait { self.session.compatibility == .incompatible(reported: 1) },
                       "new session was not re-validated (got \(session.compatibility))")
@@ -278,10 +285,9 @@ final class ProtocolGateTests: XCTestCase {
     func testNewSessionOnV2FirmwareRecovers() async throws {
         session = PicoSession(portPath: pico.slavePath)
         try await session.connect()
-        pico.emit("SESSION:0000ABCD\n")
         usleep(200_000)
         let infoQueries = pico.textLines.filter { $0 == "DEVICE_INFO" }.count
-        pico.emit("SESSION:0000CAFE\n")
+        pico.sessionID = 0x0000_CAFE
         // Re-validation must actually happen (a new DEVICE_INFO round trip), then recover.
         XCTAssertTrue(wait { self.pico.textLines.filter { $0 == "DEVICE_INFO" }.count == infoQueries + 1 })
         XCTAssertTrue(wait { self.session.compatibility == .compatible(2) && self.session.isReady })

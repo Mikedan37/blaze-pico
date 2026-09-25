@@ -97,7 +97,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     private var _readyTimestamp: UInt64?
     private var _lastHeartbeat: Date?
     private var _currentSessionID: UInt32? = nil
-    private var _lastAppliedSequence: UInt64 = 0
+    private var _lastAppliedSequence: UInt64? = nil  // nil = no state applied yet in this device session
     private var _lastKnownBootTimestamp: UInt64?
     private var _packetNumber: UInt32 = 1
     private var _reconnectAttempts: Int = 0
@@ -136,11 +136,12 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _lastHeartbeat }
         set { sessionStateLock.lock(); _lastHeartbeat = newValue; sessionStateLock.unlock() }
     }
-    private var currentSessionID: UInt32? {
+    /// The accepted device session (internal read for tests).
+    private(set) var currentSessionID: UInt32? {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _currentSessionID }
         set { sessionStateLock.lock(); _currentSessionID = newValue; sessionStateLock.unlock() }
     }
-    private var lastAppliedSequence: UInt64 {
+    private var lastAppliedSequence: UInt64? {
         get { sessionStateLock.lock(); defer { sessionStateLock.unlock() }; return _lastAppliedSequence }
         set { sessionStateLock.lock(); _lastAppliedSequence = newValue; sessionStateLock.unlock() }
     }
@@ -242,10 +243,9 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     public func connect(timeoutMs: Int = 2000) async throws {
         guard !isConnected else { return }
         
-        // Reset session tracking atomically on new connection
+        // Session identity and ordering are decided after the handshake (adoptHandshakeSession).
         sessionStateLock.lock()
-        _currentSessionID = nil
-        _lastAppliedSequence = 0
+        let previousSessionID = _currentSessionID
         _reconnectAttempts = 0
         _compatibility = .unknown   // never inherited from a previous session
         sessionStateLock.unlock()
@@ -254,12 +254,14 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
         try serialPort.open(baudRate: 115200)
         
         let readyReceived: Bool
+        let handshakeSessionID: UInt32?
         do {
-            readyReceived = try await waitForReady(timeoutMs: timeoutMs)
+            (readyReceived, handshakeSessionID) = try await waitForReady(timeoutMs: timeoutMs)
         } catch {
             serialPort.close()
             throw error
         }
+        adoptHandshakeSession(handshakeSessionID, previousSessionID: previousSessionID)
         
         isConnected = true
         
@@ -469,7 +471,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     /// Wait for device ready signal
     /// RULE 6: Serial response timeout must be short (150ms for hardware response)
     /// Default timeout reduced to 2s for faster failure if device not connected
-    private func waitForReady(timeoutMs: Int = 2000) async throws -> Bool {
+    private func waitForReady(timeoutMs: Int = 2000) async throws -> (ready: Bool, sessionID: UInt32?) {
         print("[PicoSession] Waiting for BLAZE_READY signal (timeout: \(timeoutMs)ms)...")
         fflush(stdout)
         
@@ -488,19 +490,19 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                 print("[PicoSession] ✅ BLAZE_READY received!")
                 fflush(stdout)
                 parseBootTimestamps(text)
-                return true
+                return (true, Self.lastSessionID(in: text))
             }
             
             if text.contains("HEARTBEAT:") && text.contains("READY:1") {
                 print("[PicoSession] ✅ HEARTBEAT with READY:1 detected - device already running (late-join)")
                 fflush(stdout)
-                return true
+                return (true, Self.lastSessionID(in: text))
             }
 
             if text.contains("HEARTBEAT:") {
                 print("[PicoSession] ✅ HEARTBEAT detected during waitForReady - device is alive")
                 fflush(stdout)
-                return true
+                return (true, Self.lastSessionID(in: text))
             }
             
             if buffer.count > 512 {
@@ -508,7 +510,32 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             }
         }
         
-        return false
+        return (false, Self.lastSessionID(in: Self.resilientString(from: buffer)))
+    }
+    
+    /// The last complete `SESSION:<8 hex>` line in `text`, if any.
+    static func lastSessionID(in text: String) -> UInt32? {
+        var found: UInt32?
+        for line in text.split(whereSeparator: { $0 == "\n" || $0 == "\r" }) {
+            let t = line.trimmingCharacters(in: .whitespaces)
+            if t.hasPrefix("SESSION:"), let id = UInt32(t.dropFirst(8).trimmingCharacters(in: .whitespaces), radix: 16) {
+                found = id
+            }
+        }
+        return found
+    }
+    
+    /// Make the session seen during the handshake the accepted session.
+    /// Same session as before (reconnect without a reboot): keep ordering state.
+    /// Different or unknown session: ordering starts fresh for this session.
+    private func adoptHandshakeSession(_ sessionID: UInt32?, previousSessionID: UInt32?) {
+        sessionStateLock.lock()
+        defer { sessionStateLock.unlock() }
+        if let id = sessionID, id == previousSessionID {
+            return
+        }
+        _currentSessionID = sessionID
+        _lastAppliedSequence = nil
     }
     
     /// Layer 3 transport verification: send a real binary QUERY_STATE packet and read a response.
@@ -680,38 +707,37 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
     /// CRITICAL: Resets sequence tracking when session changes to prevent permanent state blackout
     /// CRITICAL: Fails all pending commands when session changes (command timeout + reconnect race protection)
     private func handleSessionChange(newSessionID: UInt32) {
-        if let oldSessionID = currentSessionID {
-            if oldSessionID != newSessionID {
-                // Session changed - device rebooted
-                print("[PicoSession] 🔄 Session changed: \(String(format: "%08X", oldSessionID)) -> \(String(format: "%08X", newSessionID)) - resetting sequence tracking")
-                fflush(stdout)
-                lastAppliedSequence = 0  // Reset sequence to allow new session's events
-                
-                // A new session may be different firmware (reflash): block binary
-                // commands until it reports a compatible protocol again.
-                compatibility = .unknown
-                revalidateProtocol()
-                
-                // CRITICAL: Fail all pending commands (command timeout + reconnect race protection)
-                // Device rebooted mid-command - original command never completed
-                pendingCommandsLock.lock()
-                let pending = pendingCommands
-                pendingCommands.removeAll()
-                pendingCommandsLock.unlock()
-                
-                if !pending.isEmpty {
-                    print("[PicoSession] ⚠️ Session changed - failing \(pending.count) pending command(s)")
-                    fflush(stdout)
-                    // Commands will timeout naturally, but this ensures they don't auto-complete
-                    // with state from the new session
-                }
-            }
-        } else {
-            // First session - initialize
-            print("[PicoSession] 📍 First session detected: \(String(format: "%08X", newSessionID))")
+        let oldSessionID = currentSessionID
+        
+        // Same session announced again: not a transition, ordering state is kept.
+        guard oldSessionID != newSessionID else { return }
+        
+        // Firmware announces SESSION only when a session starts, so any other ID (including the
+        // first one seen after a handshake that showed none) is a new device session.
+        let from = oldSessionID.map { String(format: "%08X", $0) } ?? "unknown"
+        print("[PicoSession] 🔄 Session changed: \(from) -> \(String(format: "%08X", newSessionID)) - new ordering scope, re-checking protocol")
+        fflush(stdout)
+        
+        sessionStateLock.lock()
+        _currentSessionID = newSessionID
+        _lastAppliedSequence = nil   // sequence numbers are scoped to a device session
+        _compatibility = .unknown    // may be different firmware: block binary commands until re-checked
+        sessionStateLock.unlock()
+        revalidateProtocol()
+        
+        // CRITICAL: Fail all pending commands (command timeout + reconnect race protection)
+        // Device rebooted mid-command - original command never completed
+        pendingCommandsLock.lock()
+        let pending = pendingCommands
+        pendingCommands.removeAll()
+        pendingCommandsLock.unlock()
+        
+        if !pending.isEmpty {
+            print("[PicoSession] ⚠️ Session changed - failing \(pending.count) pending command(s)")
             fflush(stdout)
+            // Commands will timeout naturally, but this ensures they don't auto-complete
+            // with state from the new session
         }
-        currentSessionID = newSessionID
     }
     
     /// Parse boot timestamps from boot messages
@@ -779,6 +805,9 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                 
                 do {
                     let data = try self.serialPort.read(maxBytes: 512, timeoutMs: 150)
+                    // Superseded by disconnect()/connect(): these bytes (if any) belong to the
+                    // next connection's reader, and this reader must not touch session state.
+                    if Task.isCancelled { break }
                     readCount += 1
                     
                     if readCount <= 10 {
@@ -840,6 +869,7 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                         }
                     }
                 } catch {
+                    if Task.isCancelled { break }   // port closed by disconnect(): not a lost connection
                     print("[PicoSession] 🔴 Event reader error (triggering disconnect): \(error)")
                     fflush(stdout)
                     self.isConnected = false
@@ -1014,26 +1044,11 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             
             let (sequence, traceID, stateStr) = parseStateChangeHeader(trimmed)
             
-            // CRITICAL: Sequence reset handling
-            // If seq < lastAppliedSequence AND session changed, reset sequence tracking
-            // This handles device reboots where seq resets to 0 but we still have old lastAppliedSequence
-            if sequence < lastAppliedSequence {
-                // Check if this is a new session (device reboot detected)
-                if currentSessionID != nil {
-                    // Session exists but seq went backwards - device rebooted
-                    print("[PicoSession] 🔄 Sequence reset detected (seq=\(sequence) < lastSeq=\(lastAppliedSequence)) - device rebooted, resetting sequence tracking")
-                    fflush(stdout)
-                    lastAppliedSequence = 0  // Reset to allow new sequence
-                } else {
-                    // No session yet - this is first connection, allow it
-                    print("[PicoSession] ℹ️ First connection, accepting seq=\(sequence)")
-                    fflush(stdout)
-                }
-            }
-            
-            // Seq-based deduplication: only apply if sequence > lastAppliedSequence
-            if sequence <= lastAppliedSequence {
-                print("[PicoSession] ⏭️ STATE_CHANGE ignored (duplicate/out-of-order): seq=\(sequence) <= lastSeq=\(lastAppliedSequence)")
+            // Ordering is scoped to the current device session. A reboot is recognised by its
+            // SESSION line (handleSessionChange resets the scope), never by seq going backwards:
+            // within a session, anything not newer than the last applied state is a duplicate or stale.
+            if let last = lastAppliedSequence, sequence <= last {
+                print("[PicoSession] ⏭️ STATE_CHANGE ignored (duplicate/out-of-order): seq=\(sequence) <= lastSeq=\(last)")
                 fflush(stdout)
                 return  // Ignore duplicate/out-of-order events
             }
@@ -1131,14 +1146,8 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
             if let spaceRange = afterSeq.range(of: " ") {
                 let seqStr = String(afterSeq[..<spaceRange.lowerBound])
                 if let seq = UInt64(seqStr) {
-                    // CRITICAL: Sequence reset handling
-                    if seq < lastAppliedSequence && currentSessionID != nil {
-                        // Device rebooted - reset sequence tracking
-                        print("[PicoSession] 🔄 Sequence reset in STATE response (seq=\(seq) < lastSeq=\(lastAppliedSequence)) - resetting")
-                        fflush(stdout)
-                        lastAppliedSequence = 0
-                    }
-                    if seq > lastAppliedSequence {
+                    // Same ordering rule as STATE_CHANGE: only a newer state advances it.
+                    if lastAppliedSequence.map({ seq > $0 }) ?? true {
                         lastAppliedSequence = seq
                     }
                 }
@@ -1743,8 +1752,8 @@ public final class PicoSession: ObservableObject, @unchecked Sendable {
                        !statusEvent.gpio.isEmpty {
                         let gpio = statusEvent.gpio
                         
-                        if self.lastAppliedSequence > seqBeforeCommand {
-                            print("[PicoSession] ✅ STATE_CHANGE event received (seq=\(self.lastAppliedSequence), trace=\(self.formatTraceID(actualTraceID))): \(gpio)")
+                        if let now = self.lastAppliedSequence, seqBeforeCommand.map({ now > $0 }) ?? true {
+                            print("[PicoSession] ✅ STATE_CHANGE event received (seq=\(now), trace=\(self.formatTraceID(actualTraceID))): \(gpio)")
                             fflush(stdout)
                             safeResume(returning: gpio)
                             return
